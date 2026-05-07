@@ -8,13 +8,7 @@ import { ToolName, UseCase } from "@/types/audit";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// Native select used for plan picker — shadcn Select uses @base-ui with incompatible types
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -273,7 +267,7 @@ export default function HomePage() {
                     {tool.enabled && (
                       <div className="mt-4 pt-4 border-t border-gray-100">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          {/* Plan selector — hide for API tools */}
+                          {/* Plan selector — native select, hides for API tools */}
                           {!isApi ? (
                             <div className="space-y-1">
                               <Label
@@ -282,24 +276,18 @@ export default function HomePage() {
                               >
                                 Plan
                               </Label>
-                              <Select
+                              <select
+                                id={`plan-${name.replace(/\s+/g, "-").toLowerCase()}`}
                                 value={tool.plan}
-                                onValueChange={(v) => setToolPlan(name, v)}
+                                onChange={(e) => setToolPlan(name, e.target.value)}
+                                className="h-9 w-full rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600"
                               >
-                                <SelectTrigger
-                                  id={`plan-${name.replace(/\s+/g, "-").toLowerCase()}`}
-                                  className="h-9 text-sm"
-                                >
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {plans.map((p) => (
-                                    <SelectItem key={p.name} value={p.name}>
-                                      {p.name} — ${p.pricePerUserMonth}/user
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                {plans.map((p) => (
+                                  <option key={p.name} value={p.name}>
+                                    {p.name} — ${p.pricePerUserMonth}/user
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           ) : null}
 
