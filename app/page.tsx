@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuditForm, TOOL_NAMES } from "@/hooks/use-audit-form";
+import { useAuditForm } from "@/hooks/use-audit-form";
 import { WorkflowTag, ToolName, OrgType } from "@/types/audit";
 import OrgTypePicker from "@/components/org-type-picker";
 import ToolCard from "@/components/tool-card";
@@ -463,7 +463,7 @@ export default function HomePage() {
                     id="run-audit"
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-[2] bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md shadow-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                    className="flex-1  bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md shadow-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
                   >
                     {submitting ? (
                       <span className="flex items-center justify-center gap-2">

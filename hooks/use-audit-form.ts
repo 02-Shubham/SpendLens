@@ -64,31 +64,53 @@ function makeId(): string {
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuditForm() {
-  const [state, setState] = useState<AuditFormState>(DEFAULT_STATE);
-  const [hydrated, setHydrated] = useState(false);
+  const [formState, setFormState] = useState<{
+    data: AuditFormState;
+    hydrated: boolean;
+  }>({
+    data: DEFAULT_STATE,
+    hydrated: false,
+  });
 
   // Hydrate from localStorage once on mount
   useEffect(() => {
+    let savedData = DEFAULT_STATE;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setState(JSON.parse(saved) as AuditFormState);
+        savedData = JSON.parse(saved) as AuditFormState;
       }
     } catch {
       // ignore parse errors
     }
-    setHydrated(true);
+    setFormState({
+      data: savedData,
+      hydrated: true,
+    });
   }, []);
 
   // Persist on every change (after hydration)
   useEffect(() => {
-    if (!hydrated) return;
+    if (!formState.hydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(formState.data));
     } catch {
-      // ignore (e.g. private browsing)
+      // ignore
     }
-  }, [state, hydrated]);
+  }, [formState.data, formState.hydrated]);
+
+  const state = formState.data;
+  const hydrated = formState.hydrated;
+
+  const setState = useCallback(
+    (value: AuditFormState | ((s: AuditFormState) => AuditFormState)) => {
+      setFormState((prev) => ({
+        ...prev,
+        data: typeof value === "function" ? value(prev.data) : value,
+      }));
+    },
+    []
+  );
 
   // ── Navigation ──────────────────────────────────────────────────────────────
 

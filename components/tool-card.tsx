@@ -281,7 +281,7 @@ function ExpandedCard({
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export default function ToolCard(props: ToolCardProps) {
-  const { entry, onUpdate, onConfirm, onRemove } = props;
+  const { entry, onUpdate, onRemove } = props;
 
   return (
     <motion.div

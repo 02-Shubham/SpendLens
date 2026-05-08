@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cache } from "react";
@@ -150,18 +151,18 @@ export default async function AuditResultsPage({ params }: Props) {
       {/* Nav */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded">
+          <Link href="/" className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded">
             <div className="w-7 h-7 bg-green-600 rounded-md flex items-center justify-center">
               <span className="text-white text-xs font-bold">SL</span>
             </div>
             <span className="font-semibold text-gray-900">SpendLens</span>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/"
             className="text-sm text-gray-500 hover:text-gray-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded"
           >
             ← New audit
-          </a>
+          </Link>
         </div>
       </header>
 
