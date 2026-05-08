@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAudit } from "@/lib/audit-engine";
 import { supabaseAdmin } from "@/lib/supabase";
-import { UserTool, UseCase } from "@/types/audit";
+import { UserTool, OrgType } from "@/types/audit";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const { tools, teamSize, useCase } = await req.json();
+    const { tools, teamSize, orgType } = await req.json();
 
     if (!tools || !Array.isArray(tools)) {
       return NextResponse.json({ error: "Invalid tools input" }, { status: 400 });
     }
 
-    const auditSummary = runAudit(tools as UserTool[], teamSize as number, useCase as UseCase);
+    const auditSummary = runAudit(tools as UserTool[], teamSize as number, orgType as OrgType);
     
     // Generate a unique share token (12 chars hex)
     const shareToken = crypto.randomBytes(6).toString("hex");

@@ -71,7 +71,7 @@ const BADGE: Record<RecommendationType, { label: string; class: string }> = {
     label: "Switch",
     class: "bg-blue-100 text-blue-700 border-blue-200",
   },
-  credits: {
+  redundant: {
     label: "Redundant",
     class: "bg-red-100 text-red-700 border-red-200",
   },

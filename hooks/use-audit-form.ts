@@ -1,26 +1,34 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ToolName, UseCase, UserTool } from "@/types/audit";
+import { ToolName, OrgType, UserTool, WorkflowTag } from "@/types/audit";
 import { PRICING_DATA } from "@/lib/pricing-data";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface ToolEntry {
+  /** Stable React key */
+  id: string;
+  toolName: ToolName;
+  plan: string;
+  seats: number;
+  /** Auto-calculated from plan × seats */
+  monthlySpend: number;
+  workflows: WorkflowTag[];
+  /** Whether the card is in "edit" mode (expanded) or collapsed */
+  isEditing: boolean;
+}
 
 export interface AuditFormState {
   step: 1 | 2 | 3;
   teamSize: number;
-  useCase: UseCase;
-  tools: Record<
-    ToolName,
-    {
-      enabled: boolean;
-      plan: string;
-      seats: number;
-      monthlySpend: number;
-      manualSpend: boolean;
-    }
-  >;
+  orgType: OrgType;
+  tools: ToolEntry[];
 }
 
-const TOOL_NAMES: ToolName[] = [
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+export const TOOL_NAMES: ToolName[] = [
   "Cursor",
   "GitHub Copilot",
   "Claude",
@@ -31,42 +39,40 @@ const TOOL_NAMES: ToolName[] = [
   "OpenAI API",
 ];
 
-function buildDefaultTools(): AuditFormState["tools"] {
-  const defaults = {} as AuditFormState["tools"];
-  for (const name of TOOL_NAMES) {
-    const plans = PRICING_DATA[name];
-    const defaultPlan = plans[1] ?? plans[0]; // prefer the first paid plan
-    defaults[name] = {
-      enabled: false,
-      plan: defaultPlan.name,
-      seats: 1,
-      monthlySpend: defaultPlan.pricePerUserMonth,
-      manualSpend: false,
-    };
-  }
-  return defaults;
-}
-
-const STORAGE_KEY = "spendlens-audit-form";
+const STORAGE_KEY = "spendlens-v2-audit-form";
 
 const DEFAULT_STATE: AuditFormState = {
   step: 1,
-  teamSize: 1,
-  useCase: "mixed",
-  tools: buildDefaultTools(),
+  teamSize: 5,
+  orgType: "saas",
+  tools: [],
 };
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function calcSpend(toolName: ToolName, plan: string, seats: number): number {
+  const planData = PRICING_DATA[toolName].find((p) => p.name === plan);
+  if (!planData) return 0;
+  const isApiTool = toolName === "Anthropic API" || toolName === "OpenAI API";
+  return isApiTool ? 0 : planData.pricePerUserMonth * seats;
+}
+
+function makeId(): string {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAuditForm() {
   const [state, setState] = useState<AuditFormState>(DEFAULT_STATE);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from localStorage once on mount (avoids SSR mismatch)
+  // Hydrate from localStorage once on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as AuditFormState;
-        setState(parsed);
+        setState(JSON.parse(saved) as AuditFormState);
       }
     } catch {
       // ignore parse errors
@@ -74,15 +80,17 @@ export function useAuditForm() {
     setHydrated(true);
   }, []);
 
-  // Persist to localStorage on every state change (after hydration)
+  // Persist on every change (after hydration)
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
-      // ignore storage errors (e.g. private browsing)
+      // ignore (e.g. private browsing)
     }
   }, [state, hydrated]);
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
 
   const setStep = useCallback((step: 1 | 2 | 3) => {
     setState((s) => ({ ...s, step }));
@@ -92,55 +100,77 @@ export function useAuditForm() {
     setState((s) => ({ ...s, teamSize }));
   }, []);
 
-  const setUseCase = useCallback((useCase: UseCase) => {
-    setState((s) => ({ ...s, useCase }));
+  const setOrgType = useCallback((orgType: OrgType) => {
+    setState((s) => ({ ...s, orgType }));
   }, []);
 
-  const toggleTool = useCallback((name: ToolName, enabled: boolean) => {
+  // ── Tool management ──────────────────────────────────────────────────────────
+
+  /** Add a new blank tool entry (in edit mode) */
+  const addTool = useCallback((toolName: ToolName = "ChatGPT") => {
+    const plans = PRICING_DATA[toolName];
+    const defaultPlan = plans[1] ?? plans[0];
+    const entry: ToolEntry = {
+      id: makeId(),
+      toolName,
+      plan: defaultPlan.name,
+      seats: 1,
+      monthlySpend: calcSpend(toolName, defaultPlan.name, 1),
+      workflows: [],
+      isEditing: true,
+    };
+    setState((s) => ({ ...s, tools: [...s.tools, entry] }));
+  }, []);
+
+  /** Remove a tool entry by id */
+  const removeTool = useCallback((id: string) => {
+    setState((s) => ({ ...s, tools: s.tools.filter((t) => t.id !== id) }));
+  }, []);
+
+  /** Partial update for a tool entry (recalculates spend when plan/seats change) */
+  const updateTool = useCallback(
+    (id: string, patch: Partial<Omit<ToolEntry, "id" | "monthlySpend">>) => {
+      setState((s) => ({
+        ...s,
+        tools: s.tools.map((t) => {
+          if (t.id !== id) return t;
+          const next = { ...t, ...patch };
+          // Recalculate spend unless it's an API tool
+          const isApiTool =
+            next.toolName === "Anthropic API" ||
+            next.toolName === "OpenAI API";
+          if (!isApiTool) {
+            next.monthlySpend = calcSpend(next.toolName, next.plan, next.seats);
+          }
+          return next;
+        }),
+      }));
+    },
+    []
+  );
+
+  /** Override monthly spend manually (for API tools) */
+  const setToolSpend = useCallback((id: string, monthlySpend: number) => {
     setState((s) => ({
       ...s,
-      tools: { ...s.tools, [name]: { ...s.tools[name], enabled } },
+      tools: s.tools.map((t) => (t.id === id ? { ...t, monthlySpend } : t)),
     }));
   }, []);
 
-  const setToolPlan = useCallback((name: ToolName, plan: string) => {
-    setState((s) => {
-      const toolState = s.tools[name];
-      // Recalculate spend unless user has overridden it manually
-      const planData = PRICING_DATA[name].find((p) => p.name === plan);
-      const monthlySpend =
-        toolState.manualSpend
-          ? toolState.monthlySpend
-          : (planData?.pricePerUserMonth ?? 0) * toolState.seats;
-      return {
-        ...s,
-        tools: { ...s.tools, [name]: { ...toolState, plan, monthlySpend } },
-      };
-    });
-  }, []);
-
-  const setToolSeats = useCallback((name: ToolName, seats: number) => {
-    setState((s) => {
-      const toolState = s.tools[name];
-      const planData = PRICING_DATA[name].find((p) => p.name === toolState.plan);
-      const monthlySpend =
-        toolState.manualSpend
-          ? toolState.monthlySpend
-          : (planData?.pricePerUserMonth ?? 0) * seats;
-      return {
-        ...s,
-        tools: { ...s.tools, [name]: { ...toolState, seats, monthlySpend } },
-      };
-    });
-  }, []);
-
-  const setToolSpend = useCallback((name: ToolName, monthlySpend: number) => {
+  /** Toggle a workflow tag for a tool */
+  const toggleWorkflow = useCallback((id: string, tag: WorkflowTag) => {
     setState((s) => ({
       ...s,
-      tools: {
-        ...s.tools,
-        [name]: { ...s.tools[name], monthlySpend, manualSpend: true },
-      },
+      tools: s.tools.map((t) => {
+        if (t.id !== id) return t;
+        const has = t.workflows.includes(tag);
+        return {
+          ...t,
+          workflows: has
+            ? t.workflows.filter((w) => w !== tag)
+            : [...t.workflows, tag],
+        };
+      }),
     }));
   }, []);
 
@@ -153,28 +183,38 @@ export function useAuditForm() {
     }
   }, []);
 
-  // Build the UserTool[] payload to send to the API
-  const getEnabledTools = useCallback((): UserTool[] => {
-    return TOOL_NAMES.filter((n) => state.tools[n].enabled).map((n) => ({
-      toolName: n,
-      plan: state.tools[n].plan,
-      seats: state.tools[n].seats,
-      monthlySpend: state.tools[n].monthlySpend,
+  // ── Derived ──────────────────────────────────────────────────────────────────
+
+  const totalMonthlySpend = state.tools.reduce(
+    (sum, t) => sum + t.monthlySpend,
+    0
+  );
+
+  /** Build the UserTool[] payload to send to the API */
+  const getToolsPayload = useCallback((): UserTool[] => {
+    return state.tools.map((t) => ({
+      toolName: t.toolName,
+      plan: t.plan,
+      seats: t.seats,
+      monthlySpend: t.monthlySpend,
+      workflows: t.workflows,
     }));
   }, [state.tools]);
 
   return {
     state,
     hydrated,
+    totalMonthlySpend,
     setStep,
     setTeamSize,
-    setUseCase,
-    toggleTool,
-    setToolPlan,
-    setToolSeats,
+    setOrgType,
+    addTool,
+    removeTool,
+    updateTool,
     setToolSpend,
+    toggleWorkflow,
     reset,
-    getEnabledTools,
+    getToolsPayload,
     TOOL_NAMES,
   };
 }

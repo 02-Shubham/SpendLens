@@ -1,3 +1,4 @@
+// ─── Tool names ────────────────────────────────────────────────────────────────
 export type ToolName =
   | "Cursor"
   | "GitHub Copilot"
@@ -8,16 +9,38 @@ export type ToolName =
   | "Anthropic API"
   | "OpenAI API";
 
-export type UseCase = "coding" | "writing" | "data" | "research" | "mixed";
+// ─── Workflow tags (per-tool, multi-select) ────────────────────────────────────
+export type WorkflowTag =
+  | "writing"
+  | "coding"
+  | "data"
+  | "research"
+  | "support"
+  | "meetings"
+  | "design"
+  | "brainstorming";
 
+// ─── Org type (metadata/personalization only — not core audit logic) ───────────
+export type OrgType =
+  | "saas"
+  | "agency"
+  | "internal"
+  | "research"
+  | "marketing"
+  | "mixed";
+
+// ─── Input ────────────────────────────────────────────────────────────────────
 export interface UserTool {
   toolName: ToolName;
   plan: string;
   seats: number;
   monthlySpend: number;
+  /** Workflow tags selected by the user for this specific tool */
+  workflows: WorkflowTag[];
 }
 
-export type RecommendationType = "optimal" | "downgrade" | "switch" | "credits";
+// ─── Output ───────────────────────────────────────────────────────────────────
+export type RecommendationType = "optimal" | "downgrade" | "switch" | "redundant";
 
 export interface AuditResult {
   toolName: ToolName;
@@ -29,6 +52,8 @@ export interface AuditResult {
   monthlySavings: number;
   annualSavings: number;
   reasoning: string;
+  /** Detected workflow overlaps with other tools in the audit */
+  workflowOverlaps?: string[];
 }
 
 export interface AuditSummary {
@@ -36,4 +61,6 @@ export interface AuditSummary {
   totalMonthlySavings: number;
   totalAnnualSavings: number;
   hasHighSavings: boolean; // true if >$500/mo
+  orgType: OrgType;
+  teamSize: number;
 }
