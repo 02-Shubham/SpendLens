@@ -62,7 +62,7 @@ describe("Audit Engine", () => {
 
   it("should flag evaluation of Team plan for high API spend", () => {
     const tools: UserTool[] = [
-      { toolName: "OpenAI API", plan: "API Usage", seats: 1, monthlySpend: 150, workflows: [] }
+      { toolName: "OpenAI API", plan: "API Usage", seats: 1, monthlySpend: 200, workflows: [] }
     ];
     const summary = runAudit(tools, 5, "saas"); // Rule 4 checks teamSize
     const result = summary.results[0];
