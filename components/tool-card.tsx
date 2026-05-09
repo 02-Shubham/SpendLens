@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ToolEntry } from "@/hooks/use-audit-form";
 import { ToolName, WorkflowTag } from "@/types/audit";
 import { PRICING_DATA } from "@/lib/pricing-data";
+import { ChevronDown, Plus, Minus, Trash2, Edit2, Check } from "lucide-react";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -18,37 +19,13 @@ const TOOL_NAMES: ToolName[] = [
   "OpenAI API",
 ];
 
-const TOOL_COLORS: Record<ToolName, string> = {
-  Cursor:           "bg-blue-100 text-blue-700",
-  "GitHub Copilot": "bg-slate-100 text-slate-700",
-  Claude:           "bg-orange-100 text-orange-700",
-  ChatGPT:          "bg-green-100 text-green-700",
-  Gemini:           "bg-purple-100 text-purple-700",
-  Windsurf:         "bg-cyan-100 text-cyan-700",
-  "Anthropic API":  "bg-amber-100 text-amber-700",
-  "OpenAI API":     "bg-emerald-100 text-emerald-700",
-};
-
-const TOOL_INITIALS: Record<ToolName, string> = {
-  Cursor:           "Cu",
-  "GitHub Copilot": "GH",
-  Claude:           "Cl",
-  ChatGPT:          "GP",
-  Gemini:           "Ge",
-  Windsurf:         "WS",
-  "Anthropic API":  "An",
-  "OpenAI API":     "OA",
-};
-
-const WORKFLOW_TAGS: { value: WorkflowTag; label: string; emoji: string }[] = [
-  { value: "writing",      label: "Writing & docs",     emoji: "✍️" },
-  { value: "coding",       label: "Coding",             emoji: "💻" },
-  { value: "data",         label: "Data & analysis",    emoji: "📊" },
-  { value: "research",     label: "Research",           emoji: "🔍" },
-  { value: "support",      label: "Customer support",   emoji: "💬" },
-  { value: "meetings",     label: "Meetings",           emoji: "🎙️" },
-  { value: "design",       label: "Design",             emoji: "🎨" },
-  { value: "brainstorming",label: "Brainstorming",      emoji: "💡" },
+const WORKFLOW_TAGS: { value: WorkflowTag; label: string }[] = [
+  { value: "coding",       label: "Coding" },
+  { value: "writing",      label: "Writing" },
+  { value: "research",     label: "Research" },
+  { value: "data",         label: "Data" },
+  { value: "support",      label: "Support" },
+  { value: "brainstorming",label: "Other" }, // Using brainstorming as Other to keep types
 ];
 
 const IS_API_TOOL = (name: ToolName) =>
@@ -65,7 +42,7 @@ interface ToolCardProps {
   onConfirm: () => void;
 }
 
-// ─── Collapsed view ───────────────────────────────────────────────────────────
+// ─── Collapsed view (Added tool row) ───────────────────────────────────────────
 
 function CollapsedCard({
   entry,
@@ -76,68 +53,56 @@ function CollapsedCard({
   onEdit: () => void;
   onRemove: () => void;
 }) {
-  const isApi = IS_API_TOOL(entry.toolName);
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        {/* Avatar */}
-        <div
-          className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold ${TOOL_COLORS[entry.toolName]}`}
-          aria-hidden="true"
-        >
-          {TOOL_INITIALS[entry.toolName]}
-        </div>
-
-        {/* Name + plan details */}
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{entry.toolName}</p>
-          <p className="text-xs text-gray-400 truncate">
-            {isApi
-              ? `API — $${entry.monthlySpend}/mo`
-              : `${entry.plan} · ${entry.seats} seat${entry.seats !== 1 ? "s" : ""} · $${entry.monthlySpend}/mo`}
-          </p>
-          {entry.workflows.length > 0 && (
-            <p className="text-xs text-emerald-600 truncate mt-0.5">
-              {entry.workflows.map(
-                (w) => WORKFLOW_TAGS.find((t) => t.value === w)?.emoji ?? ""
-              ).join(" ")} {entry.workflows.join(", ")}
-            </p>
-          )}
+    <div className="group flex items-center justify-between py-4 border-b border-border last:border-0">
+      <div className="flex items-center gap-3">
+        <span className="text-[14px] font-medium text-text-primary">
+          {entry.toolName}
+        </span>
+        <span className="px-2 py-0.5 bg-surface-2 text-text-tertiary text-[11px] font-medium rounded-full uppercase tracking-wider">
+          {entry.plan}
+        </span>
+        <div className="flex gap-1">
+          {entry.workflows.map((w) => (
+            <span key={w} className="px-2 py-0.5 bg-green-50 text-green-700 text-[11px] font-medium rounded-full">
+              {WORKFLOW_TAGS.find(t => t.value === w)?.label || w}
+            </span>
+          ))}
         </div>
       </div>
-
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          onClick={onEdit}
-          aria-label={`Edit ${entry.toolName}`}
-          className="text-xs text-gray-400 hover:text-gray-700 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          Edit
-        </button>
-        <button
-          onClick={onRemove}
-          aria-label={`Remove ${entry.toolName}`}
-          className="text-xs text-red-400 hover:text-red-600 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
-        >
-          ✕
-        </button>
+      <div className="flex items-center gap-4">
+        <span className="font-mono text-[16px] text-green-600 font-medium">
+          ${entry.monthlySpend}
+        </span>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onEdit}
+            className="p-1 text-text-tertiary hover:text-text-primary transition-colors"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+          <button 
+            onClick={onRemove}
+            className="p-1 text-text-tertiary hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Expanded / edit view ─────────────────────────────────────────────────────
+// ─── Expanded / edit view (Tool card) ──────────────────────────────────────────
 
 function ExpandedCard({
   entry,
   onUpdate,
-  onSetSpend,
   onToggleWorkflow,
   onRemove,
   onConfirm,
 }: ToolCardProps) {
   const plans = PRICING_DATA[entry.toolName];
-  const isApi = IS_API_TOOL(entry.toolName);
 
   const handleToolChange = (toolName: ToolName) => {
     const newPlans = PRICING_DATA[toolName];
@@ -146,110 +111,88 @@ function ExpandedCard({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Row 1: Tool selector */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-          Tool
-        </label>
-        <select
-          value={entry.toolName}
-          onChange={(e) => handleToolChange(e.target.value as ToolName)}
-          className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-          aria-label="Select tool"
-        >
-          {TOOL_NAMES.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
+    <div className="bg-surface border border-border-strong rounded-lg p-5 shadow-(--shadow-sm) border-l-green-500 space-y-5 animate-slide-up">
+      {/* Row 1: Tool selector + Plan selector */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="relative">
+          <select
+            value={entry.toolName}
+            onChange={(e) => handleToolChange(e.target.value as ToolName)}
+            className="w-full h-11 appearance-none rounded-md border border-border bg-surface px-3 pr-10 text-[15px] font-medium text-text-primary focus:outline-none focus:ring-1 focus:ring-green-500 transition-shadow"
+          >
+            {TOOL_NAMES.map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary pointer-events-none" />
+        </div>
+
+        <div className="relative">
+          <select
+            value={entry.plan}
+            onChange={(e) => onUpdate({ plan: e.target.value })}
+            className="w-full h-11 appearance-none rounded-md border border-border bg-surface px-3 pr-10 text-[15px] text-text-primary focus:outline-none focus:ring-1 focus:ring-green-500 transition-shadow"
+          >
+            {plans.map((p) => (
+              <option key={p.name} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary pointer-events-none" />
+        </div>
       </div>
 
-      {/* Row 2: Plan + Seats inline */}
-      {!isApi ? (
-        <div className="grid grid-cols-2 gap-3">
-          {/* Plan */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Plan
-            </label>
-            <select
-              value={entry.plan}
-              onChange={(e) => onUpdate({ plan: e.target.value })}
-              className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-              aria-label={`Select plan for ${entry.toolName}`}
+      {/* Row 2: Seats stepper + cost display */}
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => onUpdate({ seats: Math.max(1, entry.seats - 1) })}
+              className="stepper-button"
             >
-              {plans.map((p) => (
-                <option key={p.name} value={p.name}>
-                  {p.name} — ${p.pricePerUserMonth}/user
-                </option>
-              ))}
-            </select>
+              <Minus className="h-4 w-4" />
+            </button>
+            <span className="font-mono text-[18px] font-medium min-w-[2ch] text-center">
+              {entry.seats}
+            </span>
+            <button 
+              onClick={() => onUpdate({ seats: entry.seats + 1 })}
+              className="stepper-button"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
           </div>
+          <span className="text-[12px] text-text-tertiary">people on your team</span>
+        </div>
 
-          {/* Seats + auto-cost */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Seats
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                min={1}
-                max={999}
-                value={entry.seats}
-                onChange={(e) =>
-                  onUpdate({ seats: Math.max(1, parseInt(e.target.value) || 1) })
-                }
-                className="w-full h-10 rounded-xl border border-gray-200 bg-white pl-3 pr-14 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-                aria-label={`Seats for ${entry.toolName}`}
-              />
-              {/* Estimated cost overlay */}
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-emerald-600 pointer-events-none">
-                ${entry.monthlySpend}/mo
-              </span>
-            </div>
+        <div className="text-right">
+          <div className="font-mono text-[16px] text-green-600 font-medium">
+            ${entry.monthlySpend}/mo
+          </div>
+          <div className="text-[12px] text-text-tertiary">
+            {entry.seats} seats × ${plans.find(p => p.name === entry.plan)?.pricePerUserMonth || 0}
           </div>
         </div>
-      ) : (
-        /* API tools: manual spend input */
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-            Monthly API spend ($)
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={entry.monthlySpend}
-            onChange={(e) => onSetSpend(parseFloat(e.target.value) || 0)}
-            className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow"
-            aria-label="Monthly API spend"
-          />
-        </div>
-      )}
+      </div>
 
-      {/* Row 3: Workflow tags */}
+      {/* Row 3: Tag selector */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-          Used for
-          <span className="ml-1 normal-case text-gray-400">(select all that apply)</span>
-        </label>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Workflow tags">
-          {WORKFLOW_TAGS.map(({ value, label, emoji }) => {
+        <p className="text-[13px] font-medium text-text-secondary">Used for</p>
+        <div className="flex flex-wrap gap-2">
+          {WORKFLOW_TAGS.map(({ value, label }) => {
             const active = entry.workflows.includes(value);
             return (
               <button
                 key={value}
                 onClick={() => onToggleWorkflow(value)}
-                aria-pressed={active}
-                className={[
-                  "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-100",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
-                  active
-                    ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-emerald-300 hover:text-emerald-700",
-                ].join(" ")}
+                className={`
+                  px-3 py-1 rounded-full text-[12px] font-medium border transition-all
+                  ${active 
+                    ? "bg-green-100 border-green-400 text-green-700" 
+                    : "bg-surface border-border text-text-secondary hover:border-border-strong"}
+                `}
               >
-                <span aria-hidden="true">{emoji}</span>
                 {label}
               </button>
             );
@@ -257,21 +200,19 @@ function ExpandedCard({
         </div>
       </div>
 
-      {/* Footer actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+      {/* Row 4: Actions */}
+      <div className="flex items-center justify-end gap-3 pt-2">
         <button
           onClick={onRemove}
-          className="text-sm text-red-400 hover:text-red-600 transition-colors focus-visible:outline-none"
-          aria-label={`Remove ${entry.toolName}`}
+          className="px-4 py-2 text-[14px] font-medium text-text-tertiary hover:text-text-primary transition-colors"
         >
-          Remove
+          Cancel
         </button>
         <button
-          id={`confirm-tool-${entry.id}`}
           onClick={onConfirm}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white text-[14px] font-medium px-5 py-2 rounded-md transition-all shadow-(--shadow-sm)"
         >
-          Done ✓
+          Add tool <Check className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -286,41 +227,35 @@ export default function ToolCard(props: ToolCardProps) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 340, damping: 28 }}
-      className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden"
+      className="w-full"
     >
-      <motion.div layout className="p-4">
-        <AnimatePresence mode="wait" initial={false}>
-          {entry.isEditing ? (
-            <motion.div
-              key="expanded"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <ExpandedCard {...props} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="collapsed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <CollapsedCard
-                entry={entry}
-                onEdit={() => onUpdate({ isEditing: true })}
-                onRemove={onRemove}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      <AnimatePresence mode="wait" initial={false}>
+        {entry.isEditing ? (
+          <motion.div
+            key="expanded"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+          >
+            <ExpandedCard {...props} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="collapsed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <CollapsedCard
+              entry={entry}
+              onEdit={() => onUpdate({ isEditing: true })}
+              onRemove={onRemove}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

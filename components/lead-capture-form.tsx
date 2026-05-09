@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ChevronDown, Check, Loader2, ArrowRight } from "lucide-react";
 
 interface LeadFormProps {
   shareToken: string;
@@ -18,14 +17,14 @@ export default function LeadCaptureForm({
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [role, setRole] = useState("");
-  const [honeypot, setHoneypot] = useState(""); // bot trap
+  const [honeypot, setHoneypot] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Silently ignore if bot filled the honeypot
     if (honeypot) return;
 
     setSubmitting(true);
@@ -48,94 +47,103 @@ export default function LeadCaptureForm({
 
   if (submitted) {
     return (
-      <div className="border border-green-200 bg-green-50 rounded-xl p-6 text-center space-y-2">
-        <div className="text-2xl">✓</div>
-        <p className="font-semibold text-green-800">Report sent!</p>
-        <p className="text-sm text-green-700">
-          {hasHighSavings
-            ? `A Credex advisor will reach out within 24 hours to help you capture $${Math.round(totalMonthlySavings)}/mo in savings.`
-            : "Check your inbox — your full SpendLens report is on its way."}
-        </p>
+      <div className="mx-auto max-w-[480px] rounded-xl border border-border bg-surface p-8 text-center shadow-(--shadow-md) animate-slide-up">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-50 text-green-600">
+          <Check className="h-6 w-6" />
+        </div>
+        <h3 className="font-serif text-[24px] text-text-primary">Sent! Check your inbox.</h3>
+        {hasHighSavings && (
+          <p className="mt-2 text-[14px] text-text-secondary">
+            + Our team at Credex will reach out within 24 hours.
+          </p>
+        )}
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border border-gray-200 bg-white rounded-xl p-6 space-y-4"
-      noValidate
-    >
-      <div>
-        <h2 className="font-semibold text-gray-900">Get this report in your inbox</h2>
-        <p className="text-sm text-gray-500 mt-0.5">
-          We&apos;ll send a clean PDF summary — no spam, unsubscribe anytime.
+    <div className="mx-auto max-w-[480px] rounded-xl border border-border bg-surface p-8 shadow-(--shadow-md) my-12">
+      <div className="mb-6 space-y-1">
+        <h2 className="font-serif text-[24px] text-text-primary">
+          Get this report in your inbox
+        </h2>
+        <p className="text-[14px] text-text-secondary">
+          We&apos;ll email you the full breakdown. No spam — just your audit.
         </p>
       </div>
 
-      {/* Honeypot — hidden from real users, visible to bots */}
-      <div className="hidden" aria-hidden="true">
-        <label htmlFor="website">Website (leave blank)</label>
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {/* Honeypot */}
         <input
-          id="website"
           name="website"
-          type="text"
+          style={{ display: "none" }}
           tabIndex={-1}
-          autoComplete="off"
           value={honeypot}
           onChange={(e) => setHoneypot(e.target.value)}
         />
-      </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="lead-email">Work email *</Label>
-        <Input
-          id="lead-email"
-          type="email"
-          required
-          placeholder="you@company.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <Label htmlFor="lead-company">Company (optional)</Label>
-          <Input
-            id="lead-company"
-            type="text"
-            placeholder="Acme Inc."
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
+        <div className="space-y-1.5">
+          <input
+            type="email"
+            required
+            placeholder="Work email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full h-12 rounded-md border border-border bg-surface px-4 text-[15px] text-text-primary focus:outline-none focus:border-green-500 focus:ring-[3px] focus:ring-[rgba(34,197,94,0.15)] transition-all"
           />
         </div>
-        <div className="space-y-1">
-          <Label htmlFor="lead-role">Role (optional)</Label>
-          <Input
-            id="lead-role"
-            type="text"
-            placeholder="e.g. CTO, Engineering Manager"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          />
-        </div>
-      </div>
 
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-md">
-          {error}
-        </p>
-      )}
+        <button
+          type="button"
+          onClick={() => setShowDetails(!showDetails)}
+          className="flex items-center gap-1 text-[13px] text-text-tertiary hover:text-text-secondary transition-colors"
+        >
+          Add company details <ChevronDown className={`h-3 w-3 transition-transform ${showDetails ? "rotate-180" : ""}`} />
+        </button>
 
-      <button
-        id="send-report"
-        type="submit"
-        disabled={submitting || !email}
-        className="w-full bg-gray-900 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
-      >
-        {submitting ? "Sending…" : "Send my report"}
-      </button>
-    </form>
+        {showDetails && (
+          <div className="grid grid-cols-2 gap-3 animate-slide-up">
+            <input
+              type="text"
+              placeholder="Company"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="h-11 rounded-md border border-border bg-surface px-3 text-[14px] focus:outline-none focus:border-green-500 transition-all"
+            />
+            <input
+              type="text"
+              placeholder="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="h-11 rounded-md border border-border bg-surface px-3 text-[14px] focus:outline-none focus:border-green-500 transition-all"
+            />
+          </div>
+        )}
+
+        {error && (
+          <p className="text-sm text-red-700 bg-red-50 px-3 py-2 rounded-md border border-red-100">
+            {error}
+          </p>
+        )}
+
+        <button
+          id="send-report"
+          type="submit"
+          disabled={submitting || !email}
+          className="w-full h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white font-medium rounded-md transition-all shadow-(--shadow-sm)"
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              Send my report <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </button>
+      </form>
+    </div>
   );
 }

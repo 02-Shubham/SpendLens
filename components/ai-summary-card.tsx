@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { AuditSummary } from "@/types/audit";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface AISummaryProps {
   auditSummary: AuditSummary;
@@ -35,14 +34,13 @@ export default function AISummaryCard({ auditSummary }: AISummaryProps) {
   if (loading) {
     return (
       <div
-        className="border border-gray-200 rounded-xl p-5 space-y-3 bg-white"
+        className="mx-auto max-w-[680px] rounded-lg border border-border bg-surface p-6 space-y-4"
         aria-label="Loading AI summary"
         aria-busy="true"
       >
-        <Skeleton className="h-4 w-24 skeleton-shimmer" />
-        <Skeleton className="h-4 w-full skeleton-shimmer" />
-        <Skeleton className="h-4 w-5/6 skeleton-shimmer" />
-        <Skeleton className="h-4 w-4/6 skeleton-shimmer" />
+        <div className="h-[14px] w-full animate-pulse rounded bg-surface-2" />
+        <div className="h-[14px] w-[90%] animate-pulse rounded bg-surface-2" />
+        <div className="h-[14px] w-[75%] animate-pulse rounded bg-surface-2" />
       </div>
     );
   }
@@ -50,9 +48,15 @@ export default function AISummaryCard({ auditSummary }: AISummaryProps) {
   if (!summary) return null;
 
   return (
-    <blockquote className="border-l-4 border-green-500 bg-green-50 rounded-r-xl px-5 py-4">
-      <p className="text-sm leading-relaxed text-gray-700 italic">{summary}</p>
-      <footer className="mt-2 text-xs text-gray-400">— SpendLens AI Analysis</footer>
-    </blockquote>
+    <div className="mx-auto max-w-[680px] rounded-lg border border-border bg-surface p-6 relative">
+      <div className="absolute top-4 left-6 inline-flex rounded-full border border-border bg-surface-2 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-text-tertiary">
+        AI summary
+      </div>
+      <div className="mt-8">
+        <p className="font-serif italic text-[17px] leading-[1.7] text-text-secondary">
+          {summary}
+        </p>
+      </div>
+    </div>
   );
 }

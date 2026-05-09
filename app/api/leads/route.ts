@@ -137,12 +137,18 @@ export async function POST(req: NextRequest) {
         </div>
       `;
 
-      await resend.emails.send({
-        from: "SpendLens <audit@spendlens.app>",
+      const { error: resendError } = await resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
         to: email,
         subject: "Your AI spend audit from SpendLens",
         html: emailHtml,
       });
+
+      if (resendError) {
+        console.error("Resend API error:", resendError);
+        // We don't necessarily want to fail the whole request if the email fails,
+        // as the lead was already saved to Supabase. But we should log it.
+      }
     }
 
     return NextResponse.json({ success: true });
