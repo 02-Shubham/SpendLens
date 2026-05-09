@@ -4,7 +4,7 @@ import { Resend } from "resend";
 import { headers } from "next/headers";
 import { AuditSummary } from "@/types/audit";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Simple in-memory rate limiter: 3 submissions per IP per hour
 // Note: this resets on cold starts. For production use Upstash Redis.
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send email via Resend
-    if (process.env.RESEND_API_KEY) {
+    if (resend) {
       const emailHtml = `
         <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
           <div style="padding: 24px 0; border-bottom: 1px solid #e5e7eb;">
