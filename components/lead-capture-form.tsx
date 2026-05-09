@@ -69,6 +69,7 @@ export default function LeadCaptureForm({
         </h2>
         <p className="text-[14px] text-text-secondary">
           We&apos;ll email you the full breakdown. No spam — just your audit.
+          {totalMonthlySavings > 0 && ` (Potentially saving $${Math.round(totalMonthlySavings).toLocaleString()}/mo)`}
         </p>
       </div>
 

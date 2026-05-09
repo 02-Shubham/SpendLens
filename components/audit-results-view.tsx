@@ -6,7 +6,7 @@ import { AuditSummary, AuditResult, RecommendationType } from "@/types/audit";
 import AISummaryCard from "@/components/ai-summary-card";
 import LeadCaptureForm from "@/components/lead-capture-form";
 import ShareSection from "@/components/share-section";
-import { Copy, Check, ChevronDown, ExternalLink, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Copy, Check, ChevronDown, ExternalLink, ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AuditResultsViewProps {

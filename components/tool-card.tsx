@@ -28,8 +28,7 @@ const WORKFLOW_TAGS: { value: WorkflowTag; label: string }[] = [
   { value: "brainstorming",label: "Other" }, // Using brainstorming as Other to keep types
 ];
 
-const IS_API_TOOL = (name: ToolName) =>
-  name === "Anthropic API" || name === "OpenAI API";
+
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 

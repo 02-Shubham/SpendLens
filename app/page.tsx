@@ -1,25 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuditForm } from "@/hooks/use-audit-form";
-import { WorkflowTag, ToolName, OrgType } from "@/types/audit";
+import { WorkflowTag, ToolName } from "@/types/audit";
 import OrgTypePicker from "@/components/org-type-picker";
 import ToolCard from "@/components/tool-card";
 import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ORG_LABELS: Record<OrgType, string> = {
-  saas:      "Coding & dev",
-  marketing: "Writing & content",
-  internal:  "Data & analysis",
-  mixed:     "Mixed / other",
-  // These are for backward compatibility if any old data exists
-  agency:    "Mixed / other",
-  research:  "Mixed / other",
-};
+
 
 // ─── Step animation variants ──────────────────────────────────────────────────
 
@@ -45,7 +38,7 @@ function Navbar() {
     <header className="sticky top-0 z-50 h-[56px] border-b border-border bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-full max-w-[720px] items-center justify-between px-6">
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="SpendLens" width={35} height={35} />
+          <Image src="/logo.png" alt="SpendLens" width={35} height={35} />
           <span className="font-serif font-bold text-[20px] text-text-primary">
             SpendLens
           </span>

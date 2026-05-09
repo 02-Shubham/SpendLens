@@ -7,6 +7,10 @@ import crypto from "crypto";
 export async function POST(req: NextRequest) {
   try {
     const { tools, teamSize, orgType } = await req.json();
+    
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    }
 
     if (!tools || !Array.isArray(tools)) {
       return NextResponse.json({ error: "Invalid tools input" }, { status: 400 });

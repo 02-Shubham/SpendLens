@@ -7,6 +7,7 @@ import AuditResultsView from "@/components/audit-results-view";
 
 // Fetch and memoize — used in both generateMetadata and the page
 const getAudit = cache(async (shareToken: string) => {
+  if (!supabaseAdmin) return null;
   const { data, error } = await supabaseAdmin
     .from("audits")
     .select("*")

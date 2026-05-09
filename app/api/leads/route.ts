@@ -40,6 +40,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { shareToken, email, companyName, role } = await req.json();
+    
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    }
 
     if (!shareToken || !email) {
       return NextResponse.json(
