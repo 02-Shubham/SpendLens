@@ -83,10 +83,14 @@ export function useAuditForm() {
     } catch {
       // ignore parse errors
     }
-    setFormState({
-      data: savedData,
-      hydrated: true,
-    });
+    // Use setTimeout to avoid synchronous setState in effect
+    setTimeout(() => {
+      setFormState(prev => ({
+        ...prev,
+        data: savedData,
+        hydrated: true,
+      }));
+    }, 0);
   }, []);
 
   // Persist on every change (after hydration)
@@ -116,15 +120,15 @@ export function useAuditForm() {
 
   const setStep = useCallback((step: 1 | 2 | 3) => {
     setState((s) => ({ ...s, step }));
-  }, []);
+  }, [setState]);
 
   const setTeamSize = useCallback((teamSize: number) => {
     setState((s) => ({ ...s, teamSize }));
-  }, []);
+  }, [setState]);
 
   const setOrgType = useCallback((orgType: OrgType) => {
     setState((s) => ({ ...s, orgType }));
-  }, []);
+  }, [setState]);
 
   // ── Tool management ──────────────────────────────────────────────────────────
 
@@ -142,12 +146,12 @@ export function useAuditForm() {
       isEditing: true,
     };
     setState((s) => ({ ...s, tools: [...s.tools, entry] }));
-  }, []);
+  }, [setState]);
 
   /** Remove a tool entry by id */
   const removeTool = useCallback((id: string) => {
     setState((s) => ({ ...s, tools: s.tools.filter((t) => t.id !== id) }));
-  }, []);
+  }, [setState]);
 
   /** Partial update for a tool entry (recalculates spend when plan/seats change) */
   const updateTool = useCallback(
@@ -168,7 +172,7 @@ export function useAuditForm() {
         }),
       }));
     },
-    []
+    [setState]
   );
 
   /** Override monthly spend manually (for API tools) */
@@ -177,7 +181,7 @@ export function useAuditForm() {
       ...s,
       tools: s.tools.map((t) => (t.id === id ? { ...t, monthlySpend } : t)),
     }));
-  }, []);
+  }, [setState]);
 
   /** Toggle a workflow tag for a tool */
   const toggleWorkflow = useCallback((id: string, tag: WorkflowTag) => {
@@ -194,7 +198,7 @@ export function useAuditForm() {
         };
       }),
     }));
-  }, []);
+  }, [setState]);
 
   const reset = useCallback(() => {
     setState(DEFAULT_STATE);
@@ -203,7 +207,7 @@ export function useAuditForm() {
     } catch {
       // ignore
     }
-  }, []);
+  }, [setState]);
 
   // ── Derived ──────────────────────────────────────────────────────────────────
 

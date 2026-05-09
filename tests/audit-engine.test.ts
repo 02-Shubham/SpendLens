@@ -51,7 +51,7 @@ describe("Audit Engine", () => {
 
   it("should mark optimal when tools are on cheapest plans", () => {
     const tools: UserTool[] = [
-      { toolName: "ChatGPT", plan: "Plus", seats: 1, monthlySpend: 20, workflows: ["mixed"] as any }
+      { toolName: "ChatGPT", plan: "Plus", seats: 1, monthlySpend: 20, workflows: ["research"] }
     ];
     const summary = runAudit(tools, 1, "mixed" as OrgType);
     const result = summary.results[0];
