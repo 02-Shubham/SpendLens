@@ -1,398 +1,281 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuditForm } from "@/hooks/use-audit-form";
-import { WorkflowTag, ToolName } from "@/types/audit";
-import OrgTypePicker from "@/components/org-type-picker";
-import ToolCard from "@/components/tool-card";
-import { Plus, Minus, ArrowRight, Loader2 } from "lucide-react";
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-
-
-// ─── Step animation variants ──────────────────────────────────────────────────
-
-const stepVariants = {
-  initial: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? 40 : -40,
-  }),
-  animate: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? -40 : 40,
-  }),
-};
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, BarChart3, ShieldCheck, Zap, TrendingDown, Layers, MousePointer2 } from "lucide-react";
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 
 function Navbar() {
   return (
-    <header className="sticky top-0 z-50 h-[56px] border-b border-border bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-full max-w-[720px] items-center justify-between px-6">
+    <header className="fixed top-0 left-0 right-0 z-50 h-[64px] bg-white/70 backdrop-blur-xl border-b border-gray-100/50">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-12">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="SpendLens" width={35} height={35} />
-          <span className="font-serif font-bold text-[20px] text-text-primary">
+          <Image src="/logo.png" alt="SpendLens" width={32} height={32} />
+          <span className="font-serif font-bold text-[22px] tracking-tight text-gray-900">
             SpendLens
           </span>
         </div>
-        <span className="text-[13px] text-green-500">
-          No login required
-        </span>
+        
+        <nav className="hidden md:flex items-center gap-8 text-[14px] font-medium text-gray-500">
+          <a href="#how-it-works" className="hover:text-gray-900 transition-colors">How it works</a>
+          <a href="#why-us" className="hover:text-gray-900 transition-colors">Why SpendLens</a>
+        </nav>
+
+        <Link 
+          href="/start" 
+          className="bg-gray-900 text-white px-5 py-2 rounded-full text-[14px] font-medium hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Start Audit
+        </Link>
       </div>
     </header>
   );
 }
 
-// ─── Hero ─────────────────────────────────────────────────────────────────────
+// ─── Hero Section ─────────────────────────────────────────────────────────────
 
 function Hero() {
   return (
-    <section className="relative mx-auto mt-16 mb-12 max-w-[640px] text-center px-6">
-     
-      <div className="inline-flex items-center rounded-full border border-green-300 bg-green-50 px-3 py-1 text-[14px] font-medium text-green-600 mb-4">
-        Free AI spend audit
-      </div>
-      <h1 className="font-serif text-[48px] text-text-primary mb-4">
-        Find out exactly how much you&apos;re <i className="font-serif italic text-green-500">overspending</i> on AI tools
-      </h1>
-      <p className="mx-auto max-w-[480px] text-[18px] text-gray-600 mb-8">
-        2-minute audit for teams using Cursor, Copilot, Claude, or ChatGPT. Free, no login, instant results.
-      </p>
+    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      {/* Abstract Background Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -z-10 w-full max-w-6xl aspect-square bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.08)_0%,transparent_70%)] blur-3xl" />
       
-      <div className="mx-auto max-w-[460px] flex items-center justify-center gap-2 rounded-md border border-border bg-surface-2 px-5 py-2.5 text-[13px] text-text-tertiary">
-        <span className="text-gray-600">Teams save an average of</span>
-        <span className="font-medium text-green-500">$340/month</span>
-        <span className="text-gray-600">That&apos;s </span>
-        <span className="font-medium text-green-500">$4,080/year</span>
+      <div className="mx-auto max-w-4xl px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-600 text-[13px] font-semibold mb-6">
+            <Zap className="h-3 w-3 fill-current" />
+            <span>Used by 200+ fast-growing teams</span>
+          </div>
+          
+          {/* <h1 className="font-serif text-[48px] md:text-[72px] leading-[1.1] text-gray-900 mb-8 tracking-tight">
+            Stop guessing your <br />
+            <i className="italic font-serif text-green-600">AI tool spend.</i>
+          </h1>
+          
+          <p className="text-[18px] md:text-[20px] text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+            The first automated audit engine built specifically for modern AI stacks. 
+            Find hidden savings across Cursor, Claude, ChatGPT, and 10+ other tools.
+          </p> */}
+          <h1 className="font-serif text-[48px] text-text-primary mb-4">
+            Find out exactly how much you&apos;re <i className="font-serif italic text-green-500">overspending</i> on AI tools
+          </h1>
+          <p className="mx-auto max-w-[480px] text-[18px] text-gray-600 mb-8">
+            Audit your AI spend in 2 minutes. Stop paying for unused seats and features.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link 
+              href="/start" 
+              className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-white text-white hover:text-green-600 border-2 border-green-500 px-5 py-3 rounded-xl text-[16px] font-semibold transition-all duration-200 active:scale-[0.98]"
+            >
+              Run Free Audit
+              <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+          </div>
+          <div className="text-[14px] text-gray-500 font-medium px-4 mt-4">
+            Free forever · No credit card · Results in 2 min
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Floating Tool Icons (Visual Decor) */}
+      <div className="mt-20 px-6 max-w-7xl mx-auto opacity-100 grayscale hover:grayscale-0 transition-all duration-700">
+        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+          {["ChatGPT", "Claude", "Cursor", "Copilot", "Gemini", "Windsurf"].map((tool) => (
+            <div key={tool} className="text-[18px] font-bold tracking-tighter text-gray-800 uppercase">
+              {tool}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
+// ─── How It Works ─────────────────────────────────────────────────────────────
 
-export default function HomePage() {
-  const router = useRouter();
-  const {
-    state,
-    hydrated,
-    totalMonthlySpend,
-    setStep,
-    setTeamSize,
-    setOrgType,
-    addTool,
-    removeTool,
-    updateTool,
-    setToolSpend,
-    toggleWorkflow,
-    getToolsPayload,
-  } = useAuditForm();
-
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [direction, setDirection] = useState(1);
-
-  const handleSetStep = (newStep: number) => {
-    setDirection(newStep > state.step ? 1 : -1);
-    setStep(newStep as 1 | 2 | 3);
-  };
-
-  const canProceedToStep2 = state.teamSize >= 1;
-  const canProceedToStep3 = state.tools.length > 0;
-
-  async function handleSubmit() {
-    const tools = getToolsPayload();
-    if (tools.length === 0) return;
-    setSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/audit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tools,
-          teamSize: state.teamSize,
-          orgType: state.orgType,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      router.push(`/audit/${data.shareToken}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to run audit");
-      setSubmitting(false);
+function HowItWorks() {
+  const steps = [
+    {
+      icon: <MousePointer2 className="h-6 w-6" />,
+      title: "Input your stack",
+      desc: "Tell us which tools, plans, and seats you're currently paying for. No login required."
+    },
+    {
+      icon: <BarChart3 className="h-6 w-6" />,
+      title: "Audit Engine runs",
+      desc: "Our logic analyzes workflow overlaps, seat inefficiencies, and cheaper alternatives."
+    },
+    {
+      icon: <TrendingDown className="h-6 w-6" />,
+      title: "Get your savings",
+      desc: "Instantly see exactly where to downgrade, switch, or cancel to save thousands."
     }
-  }
-
-  // Avoid SSR/localStorage hydration flicker
-  if (!hydrated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-bg">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-      </div>
-    );
-  }
-
-  const progress = (state.step / 3) * 100;
+  ];
 
   return (
-    <div className="min-h-screen">
-      <div className="fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(#c0c1c2_1px,transparent_1px)] bg-size-[24px_24px]" />
-      <Navbar />
-      
-      {state.step === 1 && <Hero />}
-
-      <main className={`mx-auto max-w-[560px] px-6 ${state.step === 1 ? "pb-32" : "pt-16 pb-32"}`}>
-        <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-8 shadow-( --shadow-md )">
-          {/* Progress bar */}
-          <div className="absolute top-0 left-0 h-[3px] w-full bg-border">
+    <section id="how-it-works" className="py-24 bg-gray-50/50 border-y border-gray-100">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="text-center mb-16">
+          <h2 className="font-serif text-[32px] md:text-[42px] text-gray-900 mb-4">How it works</h2>
+          <p className="text-gray-500 text-[18px]">From audit to savings in three simple steps.</p>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-12">
+          {steps.map((step, i) => (
             <motion.div 
-              className="h-full bg-green-500"
-              initial={false}
-              animate={{ width: `${progress}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          </div>
-
-          <AnimatePresence mode="wait" custom={direction}>
-            {/* ────────── STEP 1 — Team Basics ────────── */}
-            {state.step === 1 && (
-              <motion.div
-                key="step-1"
-                custom={direction}
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="space-y-8"
-              >
-                <div>
-                  <h2 className="text-[20px] font-semibold text-text-primary">
-                    First, tell us about your team
-                  </h2>
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="relative p-8 rounded-2xl bg-white border border-gray-100 shadow-sm"
+            >
+              <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center mb-6">
+                {step.icon}
+              </div>
+              <h3 className="text-[20px] font-bold text-gray-900 mb-3">{step.title}</h3>
+              <p className="text-gray-600 leading-relaxed text-[15px]">{step.desc}</p>
+              
+              {i < 2 && (
+                <div className="hidden md:block absolute top-1/2 -right-6 -translate-y-1/2 z-10 text-gray-200">
+                  <ArrowRight className="h-6 w-6" />
                 </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-                {/* Team size stepper */}
-                <div className="space-y-3 text-center py-4">
-                  <div className="flex items-center justify-center gap-6">
-                    <button 
-                      onClick={() => setTeamSize(Math.max(1, state.teamSize - 1))}
-                      className="stepper-button w-12 h-12"
-                    >
-                      <Minus className="h-5 w-5" />
-                    </button>
-                    <span className="font-mono text-[48px] font-medium min-w-[3ch]">
-                      {state.teamSize}
-                    </span>
-                    <button 
-                      onClick={() => setTeamSize(state.teamSize + 1)}
-                      className="stepper-button w-12 h-12"
-                    >
-                      <Plus className="h-5 w-5" />
-                    </button>
+// ─── Why SpendLens ────────────────────────────────────────────────────────────
+
+function WhyBetter() {
+  const features = [
+    {
+      icon: <Layers className="h-6 w-6" />,
+      title: "Workflow Aware",
+      desc: "We don't just count tools. We analyze if your coding, writing, and research workflows actually justify the cost."
+    },
+    {
+      icon: <ShieldCheck className="h-6 w-6" />,
+      title: "Defensible Logic",
+      desc: "Audit reports designed to be shared with finance. No generic 'switch to free' advice—actual usage-fit reasoning."
+    },
+    {
+      icon: <Zap className="h-6 w-6" />,
+      title: "Live Market Data",
+      desc: "Pricing plans for AI tools change weekly. SpendLens always uses the most current retail and credit-based pricing."
+    }
+  ];
+
+  return (
+    <section id="why-us" className="py-24 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="flex flex-col md:flex-row gap-16 items-center">
+          <div className="flex-1">
+            <h2 className="font-serif text-[32px] md:text-[42px] text-gray-900 mb-6 leading-tight">
+              Better than a <br />
+              <i className="italic text-green-600">manual spreadsheet.</i>
+            </h2>
+            <p className="text-gray-600 text-[18px] mb-8 leading-relaxed">
+              Spreadsheets are static. AI tool pricing and capabilities move at the speed of light. 
+              SpendLens is the living auditor that keeps your stack lean as the industry evolves.
+            </p>
+            
+            <ul className="space-y-4">
+              {["No complex formulas needed", "Automated redundancy detection", "One-click shareable reports"].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-[15px] font-medium text-gray-700">
+                  <div className="h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <Zap className="h-3 w-3 fill-current" />
                   </div>
-                  <p className="text-[14px] text-text-tertiary uppercase tracking-wider">
-                    people on your team
-                  </p>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="flex-1 grid gap-6">
+            {features.map((f, i) => (
+              <div key={i} className="p-6 rounded-xl border border-gray-100 bg-white hover:border-green-100 hover:bg-green-50/30 transition-all group">
+                <div className="flex gap-4">
+                  <div className="shrink-0 w-10 h-10 rounded-lg bg-gray-50 text-gray-400 group-hover:bg-white group-hover:text-green-600 flex items-center justify-center transition-colors">
+                    {f.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 mb-1">{f.title}</h4>
+                    <p className="text-gray-500 text-[14px] leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
-
-                {/* Use case grid */}
-                <div className="space-y-3">
-                  <OrgTypePicker
-                    value={state.orgType}
-                    onChange={setOrgType}
-                  />
-                </div>
-
-                <button
-                  onClick={() => handleSetStep(2)}
-                  disabled={!canProceedToStep2}
-                  className="w-full h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all"
-                >
-                  Next <ArrowRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            )}
-
-            {/* ────────── STEP 2 — Add Tools ────────── */}
-            {state.step === 2 && (
-              <motion.div
-                key="step-2"
-                custom={direction}
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="space-y-6"
-              >
-                <div className="space-y-1">
-                  <h2 className="text-[20px] font-semibold text-text-primary">
-                    Which AI tools does your team pay for?
-                  </h2>
-                  <p className="text-[14px] text-text-tertiary">
-                    Add each tool. We&apos;ll calculate exact costs.
-                  </p>
-                </div>
-
-                {/* Tool list */}
-                <div className="space-y-1">
-                  {state.tools.map((entry) => (
-                    <ToolCard
-                      key={entry.id}
-                      entry={entry}
-                      onUpdate={(patch) => updateTool(entry.id, patch)}
-                      onSetSpend={(spend) => setToolSpend(entry.id, spend)}
-                      onToggleWorkflow={(tag: WorkflowTag) =>
-                        toggleWorkflow(entry.id, tag)
-                      }
-                      onRemove={() => removeTool(entry.id)}
-                      onConfirm={() =>
-                        updateTool(entry.id, { isEditing: false })
-                      }
-                    />
-                  ))}
-                </div>
-
-                {/* Add tool button */}
-                <button
-                  onClick={() => addTool("ChatGPT" as ToolName)}
-                  className="w-full flex items-center justify-center gap-2 py-4 border border-dashed border-green-500 rounded-md text-[14px] font-medium text-green-600 hover:bg-green-50 transition-all"
-                >
-                  <Plus className="h-4 w-4" /> Add a tool
-                </button>
-
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => handleSetStep(1)}
-                    className="flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    ← Back
-                  </button>
-                  <button
-                    onClick={() => handleSetStep(3)}
-                    disabled={!canProceedToStep3}
-                  className="flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all"
-                  >
-                    Review audit <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ────────── STEP 3 — Review ────────── */}
-            {state.step === 3 && (
-              <motion.div
-                key="step-3"
-                custom={direction}
-                variants={stepVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="space-y-6"
-              >
-                <div className="space-y-1">
-                  <h2 className="text-[20px] font-semibold text-text-primary">
-                    Review your audit
-                  </h2>
-                  <p className="text-[14px] text-text-tertiary">
-                    Confirm everything looks right before we run your analysis.
-                  </p>
-                </div>
-
-                {/* Summary Table */}
-                <div className="overflow-hidden rounded-md border border-border">
-                  <table className="w-full text-left text-[14px]">
-                    <thead className="bg-surface-2 border-b border-border">
-                      <tr>
-                        <th className="px-4 py-3 font-medium text-text-secondary">Tool</th>
-                        <th className="px-4 py-3 font-medium text-text-secondary">Seats</th>
-                        <th className="px-4 py-3 font-medium text-text-secondary text-right">Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {state.tools.map((entry) => (
-                        <tr key={entry.id}>
-                          <td className="px-4 py-3">
-                            <div className="font-medium text-text-primary">{entry.toolName}</div>
-                            <div className="text-[12px] text-text-tertiary">{entry.plan}</div>
-                          </td>
-                          <td className="px-4 py-3 font-mono text-text-secondary">{entry.seats}</td>
-                          <td className="px-4 py-3 font-mono text-right text-text-primary">${entry.monthlySpend}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="bg-surface-2 font-semibold border-t border-border">
-                      <tr>
-                        <td colSpan={2} className="px-4 py-3 text-text-primary">Total</td>
-                        <td className="px-4 py-3 font-mono text-right text-green-600 text-[16px]">
-                          ${totalMonthlySpend.toFixed(0)}/mo
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-
-                {error && (
-                  <p className="text-sm text-red-700 bg-red-50 px-4 py-3 rounded-md border border-red-100">
-                    {error}
-                  </p>
-                )}
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => handleSetStep(2)}
-                    className="flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    ← Edit
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={submitting}
-                    className="flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all shadow-(--shadow-sm)"
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Running audit...
-                      </>
-                    ) : (
-                      <>Run my audit <ArrowRight className="h-4 w-4" /></>
-                    )}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </main>
-
-      {/* Running Total Footer (Sticky) */}
-      {state.step === 2 && state.tools.length > 0 && (
-        <div className="fixed bottom-0 left-0 w-full bg-surface-2 border-t border-border p-3 shadow-(--shadow-lg)">
-          <div className="mx-auto max-w-[560px] flex items-center justify-between px-4">
-            <span className="text-[13px] text-text-tertiary">
-              {state.tools.length} tool{state.tools.length !== 1 ? "s" : ""} added
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-[14px] text-text-secondary">Total:</span>
-              <span className="font-mono text-[16px] font-medium text-text-primary">
-                ${totalMonthlySpend}/mo
-              </span>
-            </div>
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
+    </section>
+  );
+}
+
+// ─── CTA Section ──────────────────────────────────────────────────────────────
+
+function CTA() {
+  return (
+    <section className="py-24 px-6">
+      <div className="mx-auto max-w-5xl bg-gray-900 rounded-[32px] p-8 md:p-16 text-center relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 bg-green-500/10 blur-[100px]" />
+        
+        <h2 className="font-serif text-[32px] md:text-[48px] text-white mb-6">
+          Ready to save on your <br /> AI stack?
+        </h2>
+        <p className="text-gray-400 text-[18px] mb-10 max-w-xl mx-auto">
+          Join hundreds of teams who have already optimized their AI tool spending with SpendLens.
+        </p>
+        
+        <Link 
+          href="/start" 
+          className="inline-flex items-center gap-2 bg-green-500 text-gray-900 px-10 py-5 rounded-2xl text-[18px] font-bold hover:bg-green-400 transition-all hover:scale-[1.05] active:scale-[0.95]"
+        >
+          Run My Free Audit <ArrowRight className="h-5 w-5" />
+        </Link>
+        
+        <div className="mt-8 text-gray-500 text-[14px]">
+          Free audit · Results in seconds · No account needed
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-white selection:bg-green-100 selection:text-green-900">
+      <Navbar />
+      <Hero />
+      <HowItWorks />
+      <WhyBetter />
+      <CTA />
+      
+      <footer className="py-12 border-t border-gray-100 text-center">
+        <div className="flex items-center justify-center gap-2 mb-4 opacity-50 grayscale">
+          <Image src="/logo.png" alt="SpendLens" width={24} height={24} />
+          <span className="font-serif font-bold text-[18px] tracking-tight text-gray-900">
+            SpendLens
+          </span>
+        </div>
+        <p className="text-gray-400 text-[13px]">
+          &copy; {new Date().getFullYear()} SpendLens. Built for fast-growing teams.
+        </p>
+      </footer>
     </div>
   );
 }

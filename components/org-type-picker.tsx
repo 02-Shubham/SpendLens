@@ -1,58 +1,76 @@
 "use client";
 
 import { OrgType } from "@/types/audit";
-import { Check } from "lucide-react";
+import { Check, Code2, PenLine, BarChart2, Layers } from "lucide-react";
 
 interface OrgOption {
   value: OrgType;
   label: string;
-  emoji: string;
+  sublabel: string;
+  Icon: React.ComponentType<{ className?: string }>;
 }
 
 const ORG_OPTIONS: OrgOption[] = [
-  { value: "saas",      label: "Coding & dev",     emoji: "💻" },
-  { value: "marketing", label: "Writing & content", emoji: "✍️" },
-  { value: "internal",  label: "Data & analysis",  emoji: "📊" },
-  { value: "mixed",     label: "Mixed / other",     emoji: "🔀" },
+  { value: "saas",      label: "Coding",     sublabel: "Dev & engineering",   Icon: Code2 },
+  { value: "marketing", label: "Writing",    sublabel: "Content & docs",       Icon: PenLine },
+  { value: "internal",  label: "Data",       sublabel: "Analysis & research",  Icon: BarChart2 },
+  { value: "mixed",     label: "Mixed",      sublabel: "Multiple use cases",   Icon: Layers },
 ];
 
 interface OrgTypePickerProps {
-  value: OrgType;
-  onChange: (value: OrgType) => void;
+  value: OrgType[];
+  onChange: (value: OrgType[]) => void;
 }
 
 export default function OrgTypePicker({ value, onChange }: OrgTypePickerProps) {
+  const toggle = (opt: OrgType) => {
+    if (value.includes(opt)) {
+      // Prevent deselecting the last item
+      if (value.length === 1) return;
+      onChange(value.filter((v) => v !== opt));
+    } else {
+      onChange([...value, opt]);
+    }
+  };
+
   return (
     <div
-      role="radiogroup"
+      role="group"
       aria-label="Team use case"
       className="grid grid-cols-2 gap-3"
     >
       {ORG_OPTIONS.map((opt) => {
-        const selected = value === opt.value;
+        const selected = value.includes(opt.value);
         return (
           <button
             key={opt.value}
             id={`org-${opt.value}`}
-            role="radio"
-            aria-checked={selected}
-            onClick={() => onChange(opt.value)}
+            type="button"
+            aria-pressed={selected}
+            onClick={() => toggle(opt.value)}
             className={`
-              relative flex flex-col items-center justify-center gap-3 rounded-md border p-4 text-center transition-all duration-200
-              ${selected 
-                ? "border-green-500 bg-green-50" 
-                : "border-border bg-surface hover:border-border-strong"}
+              relative flex flex-col items-start gap-2 rounded-md border p-4 text-left transition-all duration-150
+              ${selected
+                ? "border-green-400 bg-green-50"
+                : "border-border bg-surface hover:border-green-400"}
             `}
           >
-            <span className="text-2xl" aria-hidden="true">{opt.emoji}</span>
-            <span className={`text-[14px] font-medium ${selected ? "text-green-700" : "text-text"}`}>
-              {opt.label}
-            </span>
+            <opt.Icon
+              className={`h-4 w-4 ${selected ? "text-green-600" : "text-text-tertiary"}`}
+            />
+            <div>
+              <div className={`text-[14px] font-semibold ${selected ? "text-green-700" : "text-text-primary"}`}>
+                {opt.label}
+              </div>
+              <div className="text-[12px] text-text-tertiary leading-tight">
+                {opt.sublabel}
+              </div>
+            </div>
 
-            {/* Selected checkmark */}
+            {/* Selected indicator */}
             {selected && (
-              <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white">
-                <Check className="h-3 w-3" strokeWidth={3} />
+              <div className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-green-500 text-white">
+                <Check className="h-2.5 w-2.5" strokeWidth={3} />
               </div>
             )}
           </button>

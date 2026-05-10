@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAudit } from "@/lib/audit-engine";
 import { supabaseAdmin } from "@/lib/supabase";
-import { UserTool, OrgType } from "@/types/audit";
+import { UserTool, OrgType, GrowthTrajectory } from "@/types/audit";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const { tools, teamSize, orgType } = await req.json();
+    const { tools, teamSize, orgType, growthTrajectory } = await req.json();
     
     if (!supabaseAdmin) {
       return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
@@ -16,7 +16,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid tools input" }, { status: 400 });
     }
 
-    const auditSummary = runAudit(tools as UserTool[], teamSize as number, orgType as OrgType);
+    const auditSummary = runAudit(
+      tools as UserTool[],
+      teamSize as number,
+      orgType as OrgType,
+      (growthTrajectory as GrowthTrajectory) || "stable"
+    );
     
     // Generate a unique share token (12 chars hex)
     const shareToken = crypto.randomBytes(6).toString("hex");

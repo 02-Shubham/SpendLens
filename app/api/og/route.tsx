@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         }}
       >
         {/* Logo */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
           >
             SpendLens
           </span>
-        </div>
+        </div> */}
 
         {/* Savings number */}
         <div

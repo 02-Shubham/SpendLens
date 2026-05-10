@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ToolName, OrgType, UserTool, WorkflowTag } from "@/types/audit";
+import { ToolName, OrgType, UserTool, WorkflowTag, GrowthTrajectory } from "@/types/audit";
 import { PRICING_DATA } from "@/lib/pricing-data";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -15,6 +15,8 @@ export interface ToolEntry {
   /** Auto-calculated from plan × seats */
   monthlySpend: number;
   workflows: WorkflowTag[];
+  usageIntensity: "light" | "moderate" | "heavy";
+  monthsActive?: number;
   /** Whether the card is in "edit" mode (expanded) or collapsed */
   isEditing: boolean;
 }
@@ -22,7 +24,8 @@ export interface ToolEntry {
 export interface AuditFormState {
   step: 1 | 2 | 3;
   teamSize: number;
-  orgType: OrgType;
+  orgType: OrgType[];
+  growthTrajectory: GrowthTrajectory;
   tools: ToolEntry[];
 }
 
@@ -39,12 +42,13 @@ export const TOOL_NAMES: ToolName[] = [
   "OpenAI API",
 ];
 
-const STORAGE_KEY = "spendlens-v2-audit-form";
+const STORAGE_KEY = "spendlens-v3-audit-form";
 
 const DEFAULT_STATE: AuditFormState = {
   step: 1,
   teamSize: 5,
-  orgType: "saas",
+  orgType: ["saas"] as OrgType[],
+  growthTrajectory: "stable",
   tools: [],
 };
 
@@ -78,12 +82,21 @@ export function useAuditForm() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        savedData = JSON.parse(saved) as AuditFormState;
+        const parsed = JSON.parse(saved) as AuditFormState;
+        // Merge with defaults to handle new fields added after initial save
+        savedData = {
+          ...DEFAULT_STATE,
+          ...parsed,
+          tools: (parsed.tools || []).map((t) => {
+            const entry = { ...t };
+            if (!entry.usageIntensity) entry.usageIntensity = "moderate";
+            return entry;
+          }),
+        };
       }
     } catch {
       // ignore parse errors
     }
-    // Use setTimeout to avoid synchronous setState in effect
     setTimeout(() => {
       setFormState(prev => ({
         ...prev,
@@ -126,8 +139,12 @@ export function useAuditForm() {
     setState((s) => ({ ...s, teamSize }));
   }, [setState]);
 
-  const setOrgType = useCallback((orgType: OrgType) => {
+  const setOrgType = useCallback((orgType: OrgType[]) => {
     setState((s) => ({ ...s, orgType }));
+  }, [setState]);
+
+  const setGrowthTrajectory = useCallback((growthTrajectory: GrowthTrajectory) => {
+    setState((s) => ({ ...s, growthTrajectory }));
   }, [setState]);
 
   // ── Tool management ──────────────────────────────────────────────────────────
@@ -143,6 +160,8 @@ export function useAuditForm() {
       seats: 1,
       monthlySpend: calcSpend(toolName, defaultPlan.name, 1),
       workflows: [],
+      usageIntensity: "moderate",
+      monthsActive: undefined,
       isEditing: true,
     };
     setState((s) => ({ ...s, tools: [...s.tools, entry] }));
@@ -224,6 +243,8 @@ export function useAuditForm() {
       seats: t.seats,
       monthlySpend: t.monthlySpend,
       workflows: t.workflows,
+      usageIntensity: t.usageIntensity,
+      monthsActive: t.monthsActive ?? 12,
     }));
   }, [state.tools]);
 
@@ -234,6 +255,7 @@ export function useAuditForm() {
     setStep,
     setTeamSize,
     setOrgType,
+    setGrowthTrajectory,
     addTool,
     removeTool,
     updateTool,

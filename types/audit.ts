@@ -29,6 +29,8 @@ export type OrgType =
   | "marketing"
   | "mixed";
 
+export type GrowthTrajectory = "stable" | "hiring" | "scaling";
+
 // ─── Input ────────────────────────────────────────────────────────────────────
 export interface UserTool {
   toolName: ToolName;
@@ -37,10 +39,12 @@ export interface UserTool {
   monthlySpend: number;
   /** Workflow tags selected by the user for this specific tool */
   workflows: WorkflowTag[];
+  usageIntensity: "light" | "moderate" | "heavy";
+  monthsActive: number;
 }
 
 // ─── Output ───────────────────────────────────────────────────────────────────
-export type RecommendationType = "optimal" | "downgrade" | "switch" | "redundant";
+export type RecommendationType = "optimal" | "downgrade" | "switch" | "redundant" | "expand" | "upgrade";
 
 export interface AuditResult {
   toolName: ToolName;
@@ -52,8 +56,9 @@ export interface AuditResult {
   monthlySavings: number;
   annualSavings: number;
   reasoning: string;
-  /** Detected workflow overlaps with other tools in the audit */
   workflowOverlaps?: string[];
+  conditions?: string[]; // NEW: blockers or prerequisites
+  confidenceLevel?: "high" | "medium" | "low"; // NEW: how sure we are
 }
 
 export interface AuditSummary {
@@ -63,4 +68,6 @@ export interface AuditSummary {
   hasHighSavings: boolean; // true if >$500/mo
   orgType: OrgType;
   teamSize: number;
+  growthTrajectory: GrowthTrajectory; // NEW
+  insights?: string[]; // NEW: top-level insights across all tools
 }

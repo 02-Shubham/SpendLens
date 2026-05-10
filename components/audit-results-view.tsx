@@ -23,6 +23,8 @@ const VERDICT_BADGES: Record<RecommendationType, { label: string; class: string 
   downgrade: { label: "Downgrade", class: "badge-downgrade" },
   switch:    { label: "Switch",    class: "badge-switch" },
   redundant: { label: "Redundant", class: "badge-redundant" },
+  expand:    { label: "Expand",    class: "badge-switch" },
+  upgrade:   { label: "Upgrade",   class: "badge-downgrade" },
 };
 
 function CountUp({ value, duration = 1200 }: { value: number; duration?: number }) {
@@ -247,7 +249,7 @@ export default function AuditResultsView({ audit }: AuditResultsViewProps) {
           
           <div className="space-y-4">
             {summary.results.map((result, i) => (
-              <ToolBreakdownCard key={result.toolName} result={result} index={i} />
+              <ToolBreakdownCard key={`${result.toolName}-${i}`} result={result} index={i} />
             ))}
           </div>
         </section>
