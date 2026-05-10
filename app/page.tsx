@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, ShieldCheck, Zap, TrendingDown, Layers, MousePointer2 } from "lucide-react";
+import { SiOpenai, SiAnthropic, SiGooglegemini, SiGithubcopilot, SiWindsurf } from "react-icons/si";
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 
@@ -12,7 +13,7 @@ function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 h-[64px] bg-white/70 backdrop-blur-xl border-b border-gray-100/50">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-12">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="SpendLens" width={32} height={32} />
+          <Image src="/logo.png" alt="SpendLens" width={32} height={32} className="h-auto w-auto" />
           <span className="font-serif font-bold text-[22px] tracking-tight text-gray-900">
             SpendLens
           </span>
@@ -25,9 +26,10 @@ function Navbar() {
 
         <Link 
           href="/start" 
-          className="bg-gray-900 text-white px-5 py-2 rounded-full text-[14px] font-medium hover:bg-gray-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-white text-white hover:text-green-600 border-2 border-green-500 px-5 py-2 rounded-full text-[14px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Audit
+          <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
         </Link>
       </div>
     </header>
@@ -48,7 +50,7 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-600 text-[13px] font-semibold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-400 text-green-600 text-[13px] font-semibold mb-6">
             <Zap className="h-3 w-3 fill-current" />
             <span>Used by 200+ fast-growing teams</span>
           </div>
@@ -75,7 +77,7 @@ function Hero() {
               className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-white text-white hover:text-green-600 border-2 border-green-500 px-5 py-3 rounded-xl text-[16px] font-semibold transition-all duration-200 active:scale-[0.98]"
             >
               Run Free Audit
-              <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+              <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-2" />
             </Link>
           </div>
           <div className="text-[14px] text-gray-500 font-medium px-4 mt-4">
@@ -84,14 +86,56 @@ function Hero() {
         </motion.div>
       </div>
 
-      {/* Floating Tool Icons (Visual Decor) */}
-      <div className="mt-20 px-6 max-w-7xl mx-auto opacity-100 grayscale hover:grayscale-0 transition-all duration-700">
-        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-          {["ChatGPT", "Claude", "Cursor", "Copilot", "Gemini", "Windsurf"].map((tool) => (
-            <div key={tool} className="text-[18px] font-bold tracking-tighter text-gray-800 uppercase">
-              {tool}
-            </div>
-          ))}
+      {/* Tool Logos Strip */}
+      <div className="mt-20 px-6 max-w-4xl mx-auto">
+        <p className="text-center text-[12px] uppercase tracking-widest text-gray-400 font-medium mb-8">
+          Trusted by teams using
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 grayscale hover:grayscale-0 transition-all duration-700">
+
+          {/* ChatGPT / OpenAI */}
+          <div className="flex flex-col items-center gap-2 group">
+            <SiOpenai className="h-8 w-8 text-gray-700 group-hover:text-[#10a37f] transition-colors duration-300" />
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">ChatGPT</span>
+          </div>
+
+          {/* Claude / Anthropic */}
+          <div className="flex flex-col items-center gap-2 group">
+            <SiAnthropic className="h-8 w-8 text-gray-700 group-hover:text-[#d97706] transition-colors duration-300" />
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Claude</span>
+          </div>
+
+          {/* Cursor — custom SVG (not in react-icons yet) */}
+          <div className="flex flex-col items-center gap-2 group">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-8 w-8 text-gray-700 group-hover:text-[#6366f1] transition-colors duration-300"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M13.5 1.515a3 3 0 0 0-3 0L3 5.845a2 2 0 0 0-1 1.732V16.42a2 2 0 0 0 1 1.732l7.5 4.33a3 3 0 0 0 3 0l7.5-4.33a2 2 0 0 0 1-1.732V7.577a2 2 0 0 0-1-1.732z" />
+            </svg>
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Cursor</span>
+          </div>
+
+          {/* GitHub Copilot */}
+          <div className="flex flex-col items-center gap-2 group">
+            <SiGithubcopilot className="h-8 w-8 text-gray-700 group-hover:text-[#24292e] transition-colors duration-300" />
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Copilot</span>
+          </div>
+
+          {/* Gemini / Google */}
+          <div className="flex flex-col items-center gap-2 group">
+            <SiGooglegemini className="h-8 w-8 text-gray-700 group-hover:text-[#4285f4] transition-colors duration-300" />
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Gemini</span>
+          </div>
+
+          {/* Windsurf */}
+          <div className="flex flex-col items-center gap-2 group">
+            <SiWindsurf className="h-8 w-8 text-gray-700 group-hover:text-[#0ea5e9] transition-colors duration-300" />
+            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Windsurf</span>
+          </div>
+
         </div>
       </div>
     </section>
@@ -267,7 +311,7 @@ export default function LandingPage() {
       
       <footer className="py-12 border-t border-gray-100 text-center">
         <div className="flex items-center justify-center gap-2 mb-4 opacity-50 grayscale">
-          <Image src="/logo.png" alt="SpendLens" width={24} height={24} />
+          <Image src="/logo.png" alt="SpendLens" width={24} height={24} className="h-auto w-auto" />
           <span className="font-serif font-bold text-[18px] tracking-tight text-gray-900">
             SpendLens
           </span>

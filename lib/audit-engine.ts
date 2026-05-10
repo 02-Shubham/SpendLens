@@ -352,22 +352,6 @@ export function runAudit(
       }
     }
 
-    // ── Rule 8: Seat utilization (underbuying) ────────────────────────────────
-    if (result.recommendation === "optimal" && !result.reasoning && !IS_API_TOOL(tool.toolName) && tool.seats < teamSize * 0.6) {
-      const suggestedSeats = Math.ceil(teamSize * 0.75);
-      const planData = pricingPlans.find(p => p.name === tool.plan);
-      if (planData) {
-        const cost = planData.pricePerUserMonth * suggestedSeats;
-        setRecommendation(
-          "expand",
-          `Add ${suggestedSeats - tool.seats} seats to cover active users`,
-          cost,
-          `You currently have only ${tool.seats} seats for a ${teamSize}-person team. This significant gap suggests unlicensed usage or shared accounts, which creates compliance risks and limits feature access for ${Math.round((1 - tool.seats/teamSize)*100)}% of your team. Expanding to ${suggestedSeats} seats ensures full legal and operational coverage.`,
-          "medium"
-        );
-      }
-    }
-
     // ── Rule 9: Seat utilization (overbuying) ─────────────────────────────────
     if (result.recommendation === "optimal" && !result.reasoning && !IS_API_TOOL(tool.toolName) && tool.seats > teamSize * 1.5 && growthTrajectory === "stable") {
       const suggestedSeats = Math.ceil(teamSize * 1.1);
@@ -474,7 +458,7 @@ export function runAudit(
     results,
     totalMonthlySavings,
     totalAnnualSavings,
-    hasHighSavings: totalMonthlySavings > 500,
+    hasHighSavings: totalMonthlySavings > 10,
     orgType,
     teamSize,
     growthTrajectory,

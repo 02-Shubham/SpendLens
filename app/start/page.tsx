@@ -35,7 +35,7 @@ function Navbar() {
     <header className="sticky top-0 z-50 h-[56px] border-b border-border bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-full max-w-[720px] items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="SpendLens" width={35} height={35} />
+          <Image src="/logo.png" alt="SpendLens" width={35} height={35} className="h-auto w-auto"  />
           <span className="font-serif font-bold text-[20px] text-text-primary">
             SpendLens
           </span>
@@ -200,7 +200,7 @@ export default function StartAuditPage() {
                       <button
                         key={value}
                         onClick={() => setGrowthTrajectory(value)}
-                        className={`px-[14px] py-[6px] rounded-[6px] text-[13px] font-medium border transition-all duration-150 ${
+                        className={`px-[14px] py-[6px] rounded-sm text-[13px] font-medium border transition-all duration-150 ${
                           state.growthTrajectory === value
                             ? "bg-green-100 border-green-400 text-green-700"
                             : "bg-white border-border text-text-secondary hover:border-green-500"

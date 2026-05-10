@@ -10,18 +10,19 @@ export const PRICING_DATA: Record<ToolName, PricingPlan[]> = {
   Cursor: [
     { name: "Hobby", pricePerUserMonth: 0 },
     { name: "Pro", pricePerUserMonth: 20 },
-    { name: "Business", pricePerUserMonth: 40 },
+    { name: "Pro+", pricePerUserMonth: 60 },
+    { name: "Teams", pricePerUserMonth: 40 },
   ],
   "GitHub Copilot": [
-    { name: "Individual", pricePerUserMonth: 10 },
-    { name: "Business", pricePerUserMonth: 19 },
-    { name: "Enterprise", pricePerUserMonth: 39 },
+    { name: "Free", pricePerUserMonth: 0 },
+    { name: "Pro", pricePerUserMonth: 10 },
+    { name: "Pro+", pricePerUserMonth: 39 },
   ],
   Claude: [
     { name: "Free", pricePerUserMonth: 0 },
-    { name: "Pro", pricePerUserMonth: 20 },
+    { name: "Pro", pricePerUserMonth: 17 },
     { name: "Max", pricePerUserMonth: 100 },
-    { name: "Team", pricePerUserMonth: 30, minSeats: 5 },
+    { name: "Team", pricePerUserMonth: 100, minSeats: 5 },
   ],
   ChatGPT: [
     { name: "Plus", pricePerUserMonth: 20 },

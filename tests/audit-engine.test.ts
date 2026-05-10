@@ -132,23 +132,7 @@ describe("Audit Engine Smart Rules", () => {
     expect(audit.results[0].reasoning).toContain("waiting another 2 months");
   });
 
-  it("Rule 8: 5 seats for 15-person team should recommend expanding seats", () => {
-    const tools: UserTool[] = [
-      {
-        toolName: "Cursor",
-        plan: "Pro",
-        seats: 5,
-        monthlySpend: 100,
-        workflows: ["coding"],
-        usageIntensity: "moderate",
-        monthsActive: 6,
-      },
-    ];
-    const audit = runAudit(tools, 15, "saas", "stable");
-    expect(audit.results[0].recommendation).toBe("expand");
-    expect(audit.results[0].projectedMonthlyCost).toBeGreaterThan(100);
-    expect(audit.results[0].reasoning).toContain("unlicensed usage");
-  });
+  // Rule 8 removed — expand recommendations are no longer generated
 
   it("Rule 9: 20 seats for 10-person stable team should recommend reducing seats", () => {
     const tools: UserTool[] = [

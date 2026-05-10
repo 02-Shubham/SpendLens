@@ -44,7 +44,7 @@ export interface UserTool {
 }
 
 // ─── Output ───────────────────────────────────────────────────────────────────
-export type RecommendationType = "optimal" | "downgrade" | "switch" | "redundant" | "expand" | "upgrade";
+export type RecommendationType = "optimal" | "downgrade" | "switch" | "redundant" | "upgrade";
 
 export interface AuditResult {
   toolName: ToolName;
