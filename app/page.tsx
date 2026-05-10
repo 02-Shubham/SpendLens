@@ -1,10 +1,12 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, ShieldCheck, Zap, TrendingDown, Layers, MousePointer2 } from "lucide-react";
 import { SiOpenai, SiAnthropic, SiGooglegemini, SiGithubcopilot, SiWindsurf } from "react-icons/si";
+import { cn } from "@/lib/utils";
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 
@@ -26,10 +28,9 @@ function Navbar() {
 
         <Link 
           href="/start" 
-          className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-white text-white hover:text-green-600 border-2 border-green-500 px-5 py-2 rounded-full text-[14px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="bg-green-500 text-white px-5 py-2 rounded-full text-[14px] font-medium hover:bg-green-600 transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Audit
-          <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
         </Link>
       </div>
     </header>
@@ -38,13 +39,34 @@ function Navbar() {
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 
+function AuroraBackgroundLayer({
+  showRadialGradient = true,
+  animationSpeed = 15,
+}: {
+  showRadialGradient?: boolean;
+  animationSpeed?: number;
+}) {
+  const auroraStyles = {
+    "--aurora": "repeating-linear-gradient(100deg,#22c55e 10%,#34d399 15%,#6ee7b7 20%,#2dd4bf 25%,#14b8a6 30%)",
+    "--white-gradient": "repeating-linear-gradient(100deg,#fff 0%,#fff 7%,transparent 10%,transparent 12%,#fff 16%)",
+    "--animation-speed": `${animationSpeed}s`,
+  } as CSSProperties & Record<"--aurora" | "--white-gradient" | "--animation-speed", string>;
+
+  return (
+    <div className="aurora-background-layer" style={auroraStyles} aria-hidden="true">
+      <div className={cn("aurora-background-gradient", showRadialGradient && "aurora-radial-mask")} />
+    </div>
+  );
+}
+
 function Hero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+    <section className="relative isolate overflow-hidden bg-zinc-50 pt-32 pb-20 md:pt-48 md:pb-32">
       {/* Abstract Background Elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -z-10 w-full max-w-6xl aspect-square bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.08)_0%,transparent_70%)] blur-3xl" />
+      <AuroraBackgroundLayer showRadialGradient animationSpeed={15} />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-white/58" />
       
-      <div className="mx-auto max-w-4xl px-6 text-center">
+      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

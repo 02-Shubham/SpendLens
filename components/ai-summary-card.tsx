@@ -49,11 +49,8 @@ export default function AISummaryCard({ auditSummary }: AISummaryProps) {
 
   return (
     <div className="mx-auto max-w-[680px] rounded-lg border border-border bg-surface p-6 relative">
-      <div className="absolute top-4 left-6 inline-flex rounded-full border border-border bg-surface-2 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-text-tertiary">
-        AI summary
-      </div>
-      <div className="mt-8">
-        <p className="font-serif italic text-[17px] leading-[1.7] text-text-secondary">
+      <div className="">
+        <p className="font-serif text-[17px] text-text-secondary">
           {summary}
         </p>
       </div>

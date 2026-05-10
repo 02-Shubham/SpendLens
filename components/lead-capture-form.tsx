@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Check, Loader2, ArrowRight } from "lucide-react";
+import { Check, Loader2, ArrowRight } from "lucide-react";
 
 interface LeadFormProps {
   shareToken: string;
@@ -21,7 +21,6 @@ export default function LeadCaptureForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -62,7 +61,7 @@ export default function LeadCaptureForm({
   }
 
   return (
-    <div className="mx-auto max-w-[480px] rounded-xl border border-border bg-surface p-8 shadow-(--shadow-md) my-12">
+    <div className="mx-auto max-w-[480px] rounded-xl border border-border bg-surface p-8 shadow-(--shadow-md)">
       <div className="mb-6 space-y-1">
         <h2 className="font-serif text-[24px] text-text-primary">
           Get this report in your inbox
@@ -90,19 +89,18 @@ export default function LeadCaptureForm({
             placeholder="Work email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full h-12 rounded-md border border-border bg-surface px-4 text-[15px] text-text-primary focus:outline-none focus:border-green-500 focus:ring-[3px] focus:ring-[rgba(34,197,94,0.15)] transition-all"
+            className="w-full h-12 rounded-md border border-border bg-surface px-4 text-[15px] text-gray-950 focus:outline-none focus:border-green-500 focus:ring-[3px] focus:ring-[rgba(34,197,94,0.15)] transition-all"
           />
         </div>
 
         <button
           type="button"
-          onClick={() => setShowDetails(!showDetails)}
-          className="flex items-center gap-1 text-[13px] text-text-tertiary hover:text-text-secondary transition-colors"
+          className="flex items-center gap-1 text-[13px] text-gray-600 hover:text-gray-800 transition-colors"
         >
-          Add company details <ChevronDown className={`h-3 w-3 transition-transform ${showDetails ? "rotate-180" : ""}`} />
+          Add company details
         </button>
 
-        {showDetails && (
+        {(
           <div className="grid grid-cols-2 gap-3 animate-slide-up">
             <input
               type="text"
