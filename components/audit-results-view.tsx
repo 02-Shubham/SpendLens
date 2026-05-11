@@ -30,7 +30,7 @@ interface AuditResultsViewProps {
     audit_result: AuditSummary;
     total_monthly_savings: number;
     team_size: number;
-    tools_input: any;
+    tools_input: unknown;
   };
 }
 
@@ -113,25 +113,6 @@ function formatMoney(value: number) {
   return `$${Math.round(value).toLocaleString()}`;
 }
 
-function CountUp({ value, duration = 1200 }: { value: number; duration?: number }) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let startTime: number | null = null;
-    let frame = 0;
-    const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const progress = Math.min((currentTime - startTime) / duration, 1);
-      const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setCount(Math.floor(easedProgress * value));
-      if (progress < 1) frame = requestAnimationFrame(animate);
-    };
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [value, duration]);
-
-  return <>{count.toLocaleString()}</>;
-}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
