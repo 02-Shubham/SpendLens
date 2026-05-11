@@ -121,9 +121,10 @@ export async function GET(req: NextRequest) {
             <span style={{ fontSize: "40px", color: "#94a3b8", fontWeight: 500, marginLeft: "8px" }}>/mo</span>
           </div>
 
-          {tools && (
+          {tools && tools.length > 0 && (
             <div
               style={{
+                display: "flex",
                 fontSize: "24px",
                 color: "#334155",
                 fontWeight: 500,
@@ -131,6 +132,7 @@ export async function GET(req: NextRequest) {
                 padding: "12px 24px",
                 borderRadius: "99px",
                 border: "1px solid #f1f5f9",
+                marginTop: "20px",
               }}
             >
               Auditing: {tools}

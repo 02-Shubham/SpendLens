@@ -207,16 +207,20 @@ export function runAudit(
           "high"
         );
       } else if ((tool.toolName === "Claude" || tool.toolName === "ChatGPT") && hasCoding && !hasWriting) {
-        const alt = "Cursor";
-        const altPlan = PRICING_DATA[alt].find(p => p.name === "Pro") || PRICING_DATA[alt][1];
-        const cost = altPlan.pricePerUserMonth * tool.seats;
-        setRecommendation(
-          "switch",
-          `Switch to ${alt} for coding`,
-          cost,
-          `You're using ${tool.toolName} for code, but it lacks the deep IDE integration and codebase context of ${alt}. Switching improves dev speed for just $${altPlan.pricePerUserMonth}/user.`,
-          "high"
-        );
+        const isPremiumClaude = tool.toolName === "Claude" && (tool.plan === "Max" || tool.plan === "Team");
+        
+        if (!isPremiumClaude) {
+          const alt = "Cursor";
+          const altPlan = PRICING_DATA[alt].find(p => p.name === "Pro") || PRICING_DATA[alt][1];
+          const cost = altPlan.pricePerUserMonth * tool.seats;
+          setRecommendation(
+            "switch",
+            `Switch to ${alt} for coding`,
+            cost,
+            `You're using ${tool.toolName} for code, but it lacks the deep IDE integration and codebase context of ${alt}. Switching improves dev speed for just $${altPlan.pricePerUserMonth}/user.`,
+            "high"
+          );
+        }
       }
     }
 
@@ -395,11 +399,17 @@ export function runAudit(
 
     // ── Rule 12: Actually optimal ─────────────────────────────────────────────
     if (result.recommendation === "optimal" && !result.reasoning) {
+      let reasoning = `${tool.toolName} ${tool.plan} at $${currentMonthlyCost}/mo is appropriate because your ${tool.seats} ${tool.usageIntensity}-usage seats justify this tier, it covers your ${tool.workflows.join(", ")} workflows with no significant redundancy, and it aligns with your ${growthTrajectory} growth trajectory.`;
+      
+      if (tool.toolName === "Claude" && (tool.plan === "Max" || tool.plan === "Team") && tool.workflows.includes("coding")) {
+        reasoning = `Your Claude ${tool.plan} plan is ideal for your coding-centric workflows. Advanced features like Claude Code and higher rate limits provide a premium agentic experience that justifies the tier.`;
+      }
+
       setRecommendation(
         "optimal",
         "Your current setup is well-matched.",
         currentMonthlyCost,
-        `${tool.toolName} ${tool.plan} at $${currentMonthlyCost}/mo is appropriate because your ${tool.seats} ${tool.usageIntensity}-usage seats justify this tier, it covers your ${tool.workflows.join(", ")} workflows with no significant redundancy, and it aligns with your ${growthTrajectory} growth trajectory.`,
+        reasoning,
         "high"
       );
     }

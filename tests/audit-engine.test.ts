@@ -35,7 +35,7 @@ describe("Audit Engine Smart Rules", () => {
     ];
     const audit = runAudit(tools, 3, "saas", "scaling");
     expect(audit.results[0].recommendation).toBe("optimal");
-    expect(audit.results[0].recommendedAction).toContain("positioned for growth");
+    expect(audit.results[0].recommendedAction).toContain("Optimal for Growth");
   });
 
   it("Rule 5: Cursor + Copilot both for coding should drop Copilot with conditions", () => {
@@ -64,7 +64,7 @@ describe("Audit Engine Smart Rules", () => {
     expect(copilotResult.recommendation).toBe("redundant");
     expect(copilotResult.projectedMonthlyCost).toBe(0);
     expect(copilotResult.conditions?.length).toBeGreaterThan(0);
-    expect(copilotResult.reasoning).toContain("covers all the same workflows");
+    expect(copilotResult.reasoning).toContain("covers all your coding workflows");
   });
 
   it("Rule 6: Workflow overlap (Claude vs Cursor) should reallocate writing", () => {
@@ -92,7 +92,7 @@ describe("Audit Engine Smart Rules", () => {
     const audit = runAudit(tools, 4, "saas", "stable");
     const cursorResult = audit.results.find(r => r.toolName === "Cursor")!;
     expect(cursorResult.recommendation).toBe("switch");
-    expect(cursorResult.recommendedAction).toContain("Move writing workflows to Claude");
+    expect(cursorResult.recommendedAction).toContain("Consolidate writing to Claude");
   });
 
   it("Rule 7: API spend $150/mo, team of 3 should recommend Team plan", () => {
@@ -111,7 +111,7 @@ describe("Audit Engine Smart Rules", () => {
     const audit = runAudit(tools, 3, "saas", "stable");
     expect(audit.results[0].recommendation).toBe("switch");
     expect(audit.results[0].projectedMonthlyCost).toBe(90);
-    expect(audit.results[0].recommendedAction).toContain("Switch to ChatGPT Team plan");
+    expect(audit.results[0].recommendedAction).toContain("Switch to ChatGPT Team");
   });
 
   it("Rule 7: API spend $80/mo burst (2 months active) should stay on API, low confidence", () => {
@@ -149,7 +149,7 @@ describe("Audit Engine Smart Rules", () => {
     const audit = runAudit(tools, 10, "saas", "stable");
     expect(audit.results[0].recommendation).toBe("downgrade");
     expect(audit.results[0].projectedMonthlyCost).toBe(220); // 11 seats * 20
-    expect(audit.results[0].recommendedAction).toContain("Reduce seats to 11");
+    expect(audit.results[0].recommendedAction).toContain("Trim to 11 Seats");
   });
 
   it("Rule 2: Cursor for writing only should switch to Claude", () => {
@@ -166,7 +166,7 @@ describe("Audit Engine Smart Rules", () => {
     ];
     const audit = runAudit(tools, 5, "saas", "stable");
     expect(audit.results[0].recommendation).toBe("switch");
-    expect(audit.results[0].recommendedAction).toContain("Switch to Claude for writing workflows");
+    expect(audit.results[0].recommendedAction).toContain("Switch to Claude for writing");
   });
 
   it("Rule 12: All tools already optimal should return all optimal with good reasoning", () => {
@@ -185,5 +185,39 @@ describe("Audit Engine Smart Rules", () => {
     expect(audit.results[0].recommendation).toBe("optimal");
     expect(audit.results[0].reasoning).toContain("appropriate because");
     expect(audit.results[0].reasoning.length).toBeGreaterThan(100);
+  });
+
+  it("Rule 2 Extension: Claude Max for coding should stay optimal", () => {
+    const tools: UserTool[] = [
+      {
+        toolName: "Claude",
+        plan: "Max",
+        seats: 1,
+        monthlySpend: 100,
+        workflows: ["coding"],
+        usageIntensity: "heavy",
+        monthsActive: 6,
+      },
+    ];
+    const audit = runAudit(tools, 1, "saas", "stable");
+    expect(audit.results[0].recommendation).toBe("optimal");
+    expect(audit.results[0].reasoning).toContain("Claude Code");
+  });
+
+  it("Rule 2 Extension: Claude Team for coding should stay optimal", () => {
+    const tools: UserTool[] = [
+      {
+        toolName: "Claude",
+        plan: "Team",
+        seats: 5,
+        monthlySpend: 500,
+        workflows: ["coding"],
+        usageIntensity: "heavy",
+        monthsActive: 6,
+      },
+    ];
+    const audit = runAudit(tools, 5, "saas", "stable");
+    expect(audit.results[0].recommendation).toBe("optimal");
+    expect(audit.results[0].reasoning).toContain("Claude Code");
   });
 });
