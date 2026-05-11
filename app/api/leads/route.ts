@@ -4,7 +4,8 @@ import { Resend } from "resend";
 import { headers } from "next/headers";
 import { AuditSummary } from "@/types/audit";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const resendKey = process.env.RESEND_API_KEY;
+const resend = resendKey ? new Resend(resendKey) : null;
 
 // Simple in-memory rate limiter: 3 submissions per IP per hour
 // Note: this resets on cold starts. For production use Upstash Redis.
@@ -93,8 +94,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Send email via Resend
-    if (resend) {
-      const emailHtml = `
+    if (!resend) {
+      console.error("Resend API key missing in environment");
+      return NextResponse.json(
+        { error: "Email service not configured. Please check RESEND_API_KEY." },
+        { status: 500 }
+      );
+    }
+
+    const emailHtml = `
         <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
           <div style="padding: 24px 0; border-bottom: 1px solid #e5e7eb;">
             <strong style="font-size: 18px;">SpendLens</strong>
@@ -141,18 +149,19 @@ export async function POST(req: NextRequest) {
         </div>
       `;
 
-      const { error: resendError } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
-        to: email,
-        subject: "Your AI spend audit from SpendLens",
-        html: emailHtml,
-      });
+    const { error: resendError } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      to: email,
+      subject: "Your AI spend audit from SpendLens",
+      html: emailHtml,
+    });
 
-      if (resendError) {
-        console.error("Resend API error:", resendError);
-        // We don't necessarily want to fail the whole request if the email fails,
-        // as the lead was already saved to Supabase. But we should log it.
-      }
+    if (resendError) {
+      console.error("Resend API error:", resendError);
+      return NextResponse.json(
+        { error: `Failed to send email: ${resendError.message}` },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

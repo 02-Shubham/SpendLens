@@ -33,10 +33,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!audit) {
     return { title: "Audit not found — SpendLens" };
   }
+  const tools = audit.audit_result.results
+    .slice(0, 3)
+    .map((r) => r.toolName)
+    .join(", ");
+  
   const savings = Math.round(audit.total_monthly_savings);
   const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://spendlens.app";
-  const url = `${baseUrl}/audit/${id}`;
+    process.env.NEXT_PUBLIC_APP_URL || "https://spend-lens-one.vercel.app";
+  const url = `${baseUrl}/audit/${id}`; 
+  const ogImageUrl = `${baseUrl}/api/og?savings=${savings}&tools=${encodeURIComponent(tools)}`;
 
   return {
     title: `SpendLens — $${savings}/month in AI savings found`,
@@ -45,13 +51,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `SpendLens — $${savings}/month in AI savings found`,
       description: `See how this team can save $${savings}/mo on their AI tool spend.`,
       url,
-      images: [{ url: `${baseUrl}/api/og?savings=${savings}` }],
+      images: [{ url: ogImageUrl }],
     },
     twitter: {
       card: "summary_large_image",
       title: `SpendLens — $${savings}/month in AI savings found`,
       description: `See how this team can save $${savings}/mo on their AI tool spend.`,
-      images: [`${baseUrl}/api/og?savings=${savings}`],
+      images: [ogImageUrl],
     },
   };
 }

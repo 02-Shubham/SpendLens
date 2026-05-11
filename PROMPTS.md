@@ -4,57 +4,68 @@
 
 File: `app/api/summary/route.ts`
 
-The `/api/summary` endpoint receives the full `AuditSummary` object (the structured output from the audit engine) and uses it to generate a plain-English 80–100 word paragraph summarizing the most important finding. This paragraph appears at the bottom of the results page under "AI Summary."
+The `/api/summary` endpoint receives the full `AuditSummary` object (the structured output from the audit engine) and uses it to generate a punchy, 2-3 sentence plain-English summary. This appears at the bottom of the results page under "AI Summary."
 
 ---
 
 ## The Exact Prompt
 
 ```typescript
-const prompt = `You are a financial advisor reviewing an AI tool spend audit. Write a 80-100 word personalized summary paragraph for a startup team. Be specific about their biggest saving opportunity. Tone: direct, professional, no fluff. Audit data: ${JSON.stringify(auditSummary)}. Return only the paragraph, no preamble.`
+const prompt = `You are a blunt, friendly advisor helping a startup CTO cut their AI software costs. Write 2-3 short sentences (max 70 words total) that:
+1. Start with the single biggest action they should take RIGHT NOW and how much it saves per year (use exact numbers from the data).
+2. Give one sentence on the next best action.
+3. End with a simple, encouraging close — no corporate speak.
+
+Rules:
+- Use plain English. Write like you're texting a smart friend, not writing a report.
+- NO words like: "leverage", "optimize", "implement", "streamline", "transition", "significant", "efficiency".
+- Use "$X/yr" not "$X annually". Use "switch to" not "migrate to".
+- Be specific with tool names and dollar amounts.
+
+Audit data: ${JSON.stringify(auditSummary)}
+
+Return only the 2-3 sentences, nothing else.`;
 ```
 
 ---
 
 ## Why It's Structured This Way
 
-### Role framing: "financial advisor"
-The first version used "You are a helpful assistant." The output was vague and padded — things like "Great news! You have some opportunities to save money!" A financial advisor persona produces more direct language: "Your biggest cost inefficiency is X. Here's exactly what to do." The persona sets the expected register without needing to enumerate every stylistic rule.
+### Role framing: "blunt, friendly advisor"
+Initial versions used "financial advisor," which led to overly formal and complex jargon (e.g., "executing transitions"). The "blunt advisor" persona combined with "texting a smart friend" forces the model into a higher-velocity, lower-friction register. It feels more like a direct insight than a formal report.
 
-### Word count constraint: 80–100 words
-Without a hard limit, the model expands indefinitely. The first few attempts generated 200+ word summaries that buried the key insight. 80–100 words forces the model to pick the single most impactful finding rather than cataloguing every recommendation. This matches the UI card's dimensions — longer text breaks the layout and kills the scannability.
+### Banned Jargon
+We explicitly ban corporate-speak like "leverage," "optimize," and "streamline." These words are fillers that add length without adding value. Forcing the model to use simple verbs like "switch" or "drop" makes the advice feel much more actionable to a busy CTO.
 
-### "Return only the paragraph, no preamble"
-Without this instruction, models prefix responses with "Here is the summary:" or "Certainly! Based on the audit data...". These phrases break the "paste-to-Slack" mental model users have for this card. The no-preamble instruction cuts the boilerplate consistently.
+### Word count constraint: Max 70 words
+We moved from 80-100 down to 70 words. This ensures the output is scannable in seconds. The goal isn't to be comprehensive—it's to highlight the #1 most important thing and get out of the way.
 
-### What we tried first that didn't work
+### "Return only the sentences, no preamble"
+Cuts out LLM conversational filler like "Here is your summary..." or "Based on my analysis...".
 
-**Attempt 1**: Asked Gemini to "list the top 3 recommendations." Output was always a bullet list, which didn't fit the prose card design. Switching to "write a paragraph" fixed this.
+---
 
-**Attempt 2**: Sent only the savings numbers, not the full `AuditSummary`. The model produced generic text ("consider reviewing your subscriptions") because it didn't know which specific tool was causing the savings. Sending the full JSON — tool names, plan names, workflow tags, and reasoning strings — lets the model produce "Your Cursor Pro + GitHub Copilot overlap for coding workflows is costing $95/month for coverage a single tool provides."
+## What we tried first that didn't work
 
-**Attempt 3**: Used `anthropic-ai/sdk` (Claude). Claude's outputs were higher quality but latency was 3–4× higher than Gemini Flash. For a summary card that appears after the audit is already visible, a 4-second delay felt broken. Gemini Flash produces acceptable quality at <1 second.
+**Attempt 1**: Asked for a "detailed breakdown." Output was too long and users stopped reading halfway through.
+
+**Attempt 2**: Professional financial persona. The output was too "safe" and used too much passive voice (e.g., "It is recommended that considerations be made..."). Switching to active voice ("Switch to Cursor") was the fix.
+
+**Attempt 3**: Claude 3.5 Sonnet. Higher quality, but too slow for a "live" feeling audit. Gemini 1.5 Flash provides near-instant results which keeps the app's snappy momentum.
 
 ---
 
 ## The Fallback Template
 
 ```typescript
-const fallbackSummary = `Based on your AI stack audit, we've identified $${auditSummary.totalMonthlySavings.toFixed(2)} in potential monthly savings ($${auditSummary.totalAnnualSavings.toFixed(2)} annually). Your biggest opportunity lies in ${auditSummary.results.sort((a, b) => b.monthlySavings - a.monthlySavings)[0]?.recommendedAction || "optimizing your current plans"}. Implementing these changes will streamline your operations while maintaining the same AI power for your ${auditSummary.results.length} tools.`
+const topSaving = [...auditSummary.results].sort((a, b) => b.monthlySavings - a.monthlySavings)[0];
+const fallbackSummary = `You're spending $${(auditSummary.totalMonthlySavings * 12).toFixed(0)} more per year than you need to. The biggest fix: ${topSaving?.recommendedAction || "consolidate overlapping tools"}${topSaving ? ` — that alone saves $${(topSaving.monthlySavings * 12).toFixed(0)}/yr` : ""}. Make that one change first, then tackle the rest.`;
 ```
 
 ### Why the fallback uses real numbers, not generic text
 
 The fallback fires when:
-1. `GEMINI_API_KEY` is not set (local dev without the env var)
-2. The API call throws (rate limit, network error, malformed response)
-3. The API returns an empty string
+1. `GEMINI_API_KEY` is not set.
+2. The API call fails or is throttled.
 
-A generic fallback like "We found some savings opportunities" is useless — it gives the user no information and makes the AI Summary card feel broken. The template extracts three real values from the already-computed audit:
-- `totalMonthlySavings` — the exact dollar amount
-- `totalAnnualSavings` — the annual projection (always `× 12`, no estimation)
-- `recommendedAction` of the highest-savings tool — the specific action in plain language
-
-This means the fallback text reads like: "Based on your AI stack audit, we've identified $95.00 in potential monthly savings ($1,140.00 annually). Your biggest opportunity lies in Drop GitHub Copilot — Cursor covers all the same workflows. Implementing these changes will streamline your operations while maintaining the same AI power for your 2 tools."
-
-That's genuinely useful. It's the same information the results cards show, distilled into one sentence. A user who doesn't read anything else still gets the key fact.
+A generic fallback is a dead end. This template ensures that even if the AI fails, the user gets the #1 most important piece of data calculated by the deterministic engine. It follows the same "blunt" style as the AI prompt for consistency.

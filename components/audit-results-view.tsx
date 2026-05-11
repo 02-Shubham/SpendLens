@@ -8,9 +8,7 @@ import { AuditResult, AuditSummary, RecommendationType } from "@/types/audit";
 import AISummaryCard from "@/components/ai-summary-card";
 import LeadCaptureForm from "@/components/lead-capture-form";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
+  ArrowLeft, ArrowRight, Check,
   ChevronDown,
   Copy,
   Download,
@@ -32,6 +30,7 @@ interface AuditResultsViewProps {
     audit_result: AuditSummary;
     total_monthly_savings: number;
     team_size: number;
+    tools_input: any;
   };
 }
 
@@ -353,8 +352,8 @@ function TopRecommendationCard({ result, index }: { result: AuditResult; index: 
               <div className="flex gap-3">
                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                 <div className="space-y-2">
-                  <p className="text-[13px] font-semibold text-slate-950">{result.recommendedAction}</p>
-                  <p className="text-[13px] leading-6 text-slate-600">{result.reasoning}</p>
+                  <p className="text-[15px] font-bold text-slate-950">{result.recommendedAction}</p>
+                  <p className="text-[15px] leading-relaxed text-slate-600">{result.reasoning}</p>
                   {result.conditions && result.conditions.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       {result.conditions.map((condition) => (
@@ -542,6 +541,31 @@ export default function AuditResultsView({ audit }: AuditResultsViewProps) {
     router.push("/start");
   }
 
+  function editAudit() {
+    if (typeof window !== "undefined" && audit.tools_input) {
+      // Restore the form state from the audit data
+      const formData = {
+        tools: audit.tools_input,
+        teamSize: audit.team_size,
+        // orgType and growthTrajectory are not in the raw tools_input but in the audit_result
+        orgType: summary.orgType,
+        growthTrajectory: summary.growthTrajectory
+      };
+      localStorage.setItem("spendlens-v3-audit-form", JSON.stringify(formData));
+    }
+    router.push("/start");
+  }
+
+  // Handle sticky bar visibility
+  const [showSticky, setShowSticky] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowSticky(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-20 text-slate-950">
       <header className="border-b border-slate-200 bg-white/85 backdrop-blur-xl">
@@ -558,23 +582,29 @@ export default function AuditResultsView({ audit }: AuditResultsViewProps) {
           </div>
           <div className="flex flex-wrap gap-3">
             <button
+              onClick={editAudit}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-[14px] font-semibold text-slate-800 transition hover:bg-slate-50"
+            >
+              <ArrowLeft className="h-4 w-4" /> Edit audit
+            </button>
+            <button
               onClick={startFresh}
               className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-[14px] font-semibold text-slate-800 transition hover:bg-slate-50"
             >
-              <ArrowLeft className="h-4 w-4" /> New audit
+              New audit
             </button>
             <button
               onClick={copyLink}
               className="inline-flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-[14px] font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-              {copied ? "Copied" : "Share report"}
+              {copied ? "Copied" : "Share"}
             </button>
             <button
               onClick={downloadPdf}
               className="inline-flex h-10 items-center gap-2 rounded-md bg-green-600 px-4 text-[14px] font-semibold text-white transition hover:bg-green-700"
             >
-              <Download className="h-4 w-4" /> Download PDF
+              <Download className="h-4 w-4" /> PDF
             </button>
           </div>
         </div>
@@ -585,26 +615,26 @@ export default function AuditResultsView({ audit }: AuditResultsViewProps) {
           <div className="grid gap-5 xl:grid-cols-[1.2fr_0.82fr]">
             <DashboardCard className="p-6">
               <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-slate-500">Total potential savings</p>
-              <div className="mt-7 flex flex-col gap-7 lg:flex-row lg:items-end">
-                <div className="min-w-[260px]">
-                  <div className="flex flex-wrap items-end gap-4">
-                    <p className="text-[56px] font-bold leading-none text-green-600">
-                      $<CountUp value={totalAnnual} />
-                      <span className="ml-2 align-baseline text-[18px] font-medium text-slate-700">/year</span>
-                    </p>
-                    <div className="inline-flex items-center gap-3 rounded-md px-4 text-green-700">
-                      <TrendingDown className="h-5 w-5" />
-                      <div>
-                        <p className="text-[24px] font-bold leading-none">{reduction}%</p>
-                        <p className="text-[12px] font-medium">Spend reduction</p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="mt-4 max-w-sm text-[16px] leading-7 text-slate-600">
-                    That&apos;s {formatMoney(totalMonthly)}/month or {reduction}% of your current spend.
+              <div className="mt-7">
+                <div className="flex flex-wrap items-baseline gap-3">
+                  <p className="text-[20px] font-medium text-slate-400 line-through decoration-slate-300 decoration-2">
+                    {formatMoney(currentSpend * 12)}
+                  </p>
+                  <p className="text-[56px] font-bold leading-none text-green-600">
+                    {formatMoney(currentSpend * 12 - totalAnnual)}
+                    <span className="ml-2 align-baseline text-[18px] font-medium text-slate-700">/year</span>
                   </p>
                 </div>
-                {/* <SpendProjectionChart currentSpend={currentSpend} projectedSpend={projectedSpend} /> */}
+                <div className="mt-4 flex items-center gap-2 text-green-700">
+                  <TrendingDown className="h-5 w-5" />
+                  <p className="text-[18px] font-bold">{reduction}% reduction</p>
+                </div>
+                <p className="mt-6 max-w-sm text-[16px] font-semibold text-slate-900">
+                  Follow our recommendation to get this saving.
+                </p>
+                <p className="mt-1 text-[15px] text-slate-500">
+                  That&apos;s {formatMoney(totalMonthly)}/month back in your pocket.
+                </p>
               </div>
             </DashboardCard>
             {/* here */}
@@ -702,6 +732,35 @@ export default function AuditResultsView({ audit }: AuditResultsViewProps) {
           <CredexCTA totalMonthly={totalMonthly} />
         </aside>
       </main>
+
+      {/* Sticky Pill */}
+      <AnimatePresence>
+        {showSticky && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2"
+          >
+            <div className="flex items-center gap-4 rounded-full border border-green-100 bg-white px-6 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-md">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Savings</span>
+                <span className="text-[20px] font-bold text-green-600">{formatMoney(totalAnnual)}/yr</span>
+              </div>
+              <div className="h-8 w-px bg-slate-200" />
+              <button
+                onClick={() => {
+                  const el = document.getElementById("recommendations");
+                  el?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="rounded-full bg-green-600 px-5 py-2 text-[13px] font-bold text-white transition hover:bg-green-700"
+              >
+                View Recommendations
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

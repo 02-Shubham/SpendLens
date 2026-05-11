@@ -7,7 +7,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 export async function POST(req: NextRequest) {
   const { auditSummary } = (await req.json()) as { auditSummary: AuditSummary };
 
-  const fallbackSummary = `Based on your AI stack audit, we've identified $${auditSummary.totalMonthlySavings.toFixed(2)} in potential monthly savings ($${auditSummary.totalAnnualSavings.toFixed(2)} annually). Your biggest opportunity lies in ${auditSummary.results.sort((a, b) => b.monthlySavings - a.monthlySavings)[0]?.recommendedAction || "optimizing your current plans"}. Implementing these changes will streamline your operations while maintaining the same AI power for your ${auditSummary.results.length} tools.`;
+  const topSaving = [...auditSummary.results].sort((a, b) => b.monthlySavings - a.monthlySavings)[0];
+  const fallbackSummary = `You're spending $${(auditSummary.totalMonthlySavings * 12).toFixed(0)} more per year than you need to. The biggest fix: ${topSaving?.recommendedAction || "consolidate overlapping tools"}${topSaving ? ` — that alone saves $${(topSaving.monthlySavings * 12).toFixed(0)}/yr` : ""}. Make that one change first, then tackle the rest.`;
 
   if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ summary: fallbackSummary });
@@ -16,7 +17,20 @@ export async function POST(req: NextRequest) {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
-    const prompt = `You are a financial advisor reviewing an AI tool spend audit. Write a 80-100 word personalized summary paragraph for a startup team. Be specific about their biggest saving opportunity. Tone: direct, professional, no fluff. Audit data: ${JSON.stringify(auditSummary)}. Return only the paragraph, no preamble.`;
+    const prompt = `You are a blunt, friendly advisor helping a startup CTO cut their AI software costs. Write 2-3 short sentences (max 70 words total) that:
+1. Start with the single biggest action they should take RIGHT NOW and how much it saves per year (use exact numbers from the data).
+2. Give one sentence on the next best action.
+3. End with a simple, encouraging close — no corporate speak.
+
+Rules:
+- Use plain English. Write like you're texting a smart friend, not writing a report.
+- NO words like: "leverage", "optimize", "implement", "streamline", "transition", "significant", "efficiency".
+- Use "$X/yr" not "$X annually". Use "switch to" not "migrate to".
+- Be specific with tool names and dollar amounts.
+
+Audit data: ${JSON.stringify(auditSummary)}
+
+Return only the 3-4 sentences, nothing else.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text().trim();

@@ -1,12 +1,8 @@
-"use client";
-
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, ShieldCheck, Zap, TrendingDown, Layers, MousePointer2 } from "lucide-react";
 import { SiOpenai, SiAnthropic, SiGooglegemini, SiGithubcopilot, SiWindsurf } from "react-icons/si";
-import { cn } from "@/lib/utils";
+import { AuroraBackgroundLayer, HeroContent, AnimatedSection } from "@/components/landing-client-components";
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 
@@ -15,7 +11,14 @@ function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 h-[64px] bg-white/70 backdrop-blur-xl border-b border-gray-100/50">
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-12">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="SpendLens" width={32} height={32} className="h-auto w-auto" />
+          <Image 
+            src="/logo.png" 
+            alt="SpendLens" 
+            width={32} 
+            height={32} 
+            className="h-auto w-auto" 
+            priority // Critical for LCP
+          />
           <span className="font-serif font-bold text-[22px] tracking-tight text-gray-900">
             SpendLens
           </span>
@@ -39,26 +42,6 @@ function Navbar() {
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 
-function AuroraBackgroundLayer({
-  showRadialGradient = true,
-  animationSpeed = 15,
-}: {
-  showRadialGradient?: boolean;
-  animationSpeed?: number;
-}) {
-  const auroraStyles = {
-    "--aurora": "repeating-linear-gradient(100deg,#22c55e 10%,#34d399 15%,#6ee7b7 20%,#2dd4bf 25%,#14b8a6 30%)",
-    "--white-gradient": "repeating-linear-gradient(100deg,#fff 0%,#fff 7%,transparent 10%,transparent 12%,#fff 16%)",
-    "--animation-speed": `${animationSpeed}s`,
-  } as CSSProperties & Record<"--aurora" | "--white-gradient" | "--animation-speed", string>;
-
-  return (
-    <div className="aurora-background-layer" style={auroraStyles} aria-hidden="true">
-      <div className={cn("aurora-background-gradient", showRadialGradient && "aurora-radial-mask")} />
-    </div>
-  );
-}
-
 function Hero() {
   return (
     <section className="relative isolate overflow-hidden bg-zinc-50 pt-32 pb-20 md:pt-48 md:pb-32">
@@ -66,101 +49,42 @@ function Hero() {
       <AuroraBackgroundLayer showRadialGradient animationSpeed={15} />
       <div className="pointer-events-none absolute inset-0 -z-10 bg-white/58" />
       
-      <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-400 text-green-600 text-[13px] font-semibold mb-6">
-            <Zap className="h-3 w-3 fill-current" />
-            <span>Used by 200+ fast-growing teams</span>
-          </div>
-          
-          {/* <h1 className="font-serif text-[48px] md:text-[72px] leading-[1.1] text-gray-900 mb-8 tracking-tight">
-            Stop guessing your <br />
-            <i className="italic font-serif text-green-600">AI tool spend.</i>
-          </h1>
-          
-          <p className="text-[18px] md:text-[20px] text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-            The first automated audit engine built specifically for modern AI stacks. 
-            Find hidden savings across Cursor, Claude, ChatGPT, and 10+ other tools.
-          </p> */}
-          <h1 className="font-serif text-[48px] text-text-primary mb-4">
-            Find out exactly how much you&apos;re <i className="font-serif italic text-green-500">overspending</i> on AI tools
-          </h1>
-          <p className="mx-auto max-w-[480px] text-[18px] text-gray-600 mb-8">
-            Audit your AI spend in 2 minutes. Stop paying for unused seats and features.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link 
-              href="/start" 
-              className="group w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 hover:bg-white text-white hover:text-green-600 border-2 border-green-500 px-5 py-3 rounded-xl text-[16px] font-semibold transition-all duration-200 active:scale-[0.98]"
-            >
-              Run Free Audit
-              <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-2" />
-            </Link>
-          </div>
-          <div className="text-[14px] text-gray-500 font-medium px-4 mt-4">
-            Free forever · No credit card · Results in 2 min
-          </div>
-        </motion.div>
+      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
+        <HeroContent />
       </div>
 
       {/* Tool Logos Strip */}
-      <div className="mt-20 px-6 max-w-4xl mx-auto">
-        <p className="text-center text-[12px] uppercase tracking-widest text-gray-400 font-medium mb-8">
+      <div className="mt-20 px-6 max-w-5xl mx-auto">
+        <p className="text-center text-[13.5px] uppercase tracking-widest text-gray-400 font-medium mb-8">
           Trusted by teams using
         </p>
-        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 grayscale hover:grayscale-0 transition-all duration-700">
-
-          {/* ChatGPT / OpenAI */}
-          <div className="flex flex-col items-center gap-2 group">
-            <SiOpenai className="h-8 w-8 text-gray-700 group-hover:text-[#10a37f] transition-colors duration-300" />
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">ChatGPT</span>
-          </div>
-
-          {/* Claude / Anthropic */}
-          <div className="flex flex-col items-center gap-2 group">
-            <SiAnthropic className="h-8 w-8 text-gray-700 group-hover:text-[#d97706] transition-colors duration-300" />
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Claude</span>
-          </div>
-
-          {/* Cursor — custom SVG (not in react-icons yet) */}
-          <div className="flex flex-col items-center gap-2 group">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-8 w-8 text-gray-700 group-hover:text-[#6366f1] transition-colors duration-300"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M13.5 1.515a3 3 0 0 0-3 0L3 5.845a2 2 0 0 0-1 1.732V16.42a2 2 0 0 0 1 1.732l7.5 4.33a3 3 0 0 0 3 0l7.5-4.33a2 2 0 0 0 1-1.732V7.577a2 2 0 0 0-1-1.732z" />
-            </svg>
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Cursor</span>
-          </div>
-
-          {/* GitHub Copilot */}
-          <div className="flex flex-col items-center gap-2 group">
-            <SiGithubcopilot className="h-8 w-8 text-gray-700 group-hover:text-[#24292e] transition-colors duration-300" />
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Copilot</span>
-          </div>
-
-          {/* Gemini / Google */}
-          <div className="flex flex-col items-center gap-2 group">
-            <SiGooglegemini className="h-8 w-8 text-gray-700 group-hover:text-[#4285f4] transition-colors duration-300" />
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Gemini</span>
-          </div>
-
-          {/* Windsurf */}
-          <div className="flex flex-col items-center gap-2 group">
-            <SiWindsurf className="h-8 w-8 text-gray-700 group-hover:text-[#0ea5e9] transition-colors duration-300" />
-            <span className="text-[11px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">Windsurf</span>
-          </div>
-
+        <div className="flex flex-wrap justify-center items-center gap-11 md:gap-18 grayscale hover:grayscale-0 transition-all duration-700">
+          {/* Tool icons... */}
+          <ToolIcon icon={<SiOpenai className="h-9 w-9 text-gray-700 group-hover:text-[#10a37f] transition-colors duration-300" />} label="ChatGPT" />
+          <ToolIcon icon={<SiAnthropic className="h-9 w-9 text-gray-700 group-hover:text-[#d97706] transition-colors duration-300" />} label="Claude" />
+          <ToolIcon 
+            icon={
+              <svg viewBox="0 0 24 24" className="h-9 w-9 text-gray-700 group-hover:text-[#6366f1] transition-colors duration-300" fill="currentColor" aria-hidden="true">
+                <path d="M13.5 1.515a3 3 0 0 0-3 0L3 5.845a2 2 0 0 0-1 1.732V16.42a2 2 0 0 0 1 1.732l7.5 4.33a3 3 0 0 0 3 0l7.5-4.33a2 2 0 0 0 1-1.732V7.577a2 2 0 0 0-1-1.732z" />
+              </svg>
+            } 
+            label="Cursor" 
+          />
+          <ToolIcon icon={<SiGithubcopilot className="h-9 w-9 text-gray-700 group-hover:text-[#24292e] transition-colors duration-300" />} label="Copilot" />
+          <ToolIcon icon={<SiGooglegemini className="h-9 w-9 text-gray-700 group-hover:text-[#4285f4] transition-colors duration-300" />} label="Gemini" />
+          <ToolIcon icon={<SiWindsurf className="h-9 w-9 text-gray-700 group-hover:text-[#0ea5e9] transition-colors duration-300" />} label="Windsurf" />
         </div>
       </div>
     </section>
+  );
+}
+
+function ToolIcon({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 group">
+      {icon}
+      <span className="text-[12.5px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-700 transition-colors">{label}</span>
+    </div>
   );
 }
 
@@ -195,26 +119,21 @@ function HowItWorks() {
         
         <div className="grid md:grid-cols-3 gap-12">
           {steps.map((step, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="relative p-8 rounded-2xl bg-white border border-gray-100 shadow-sm"
-            >
-              <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center mb-6">
-                {step.icon}
-              </div>
-              <h3 className="text-[20px] font-bold text-gray-900 mb-3">{step.title}</h3>
-              <p className="text-gray-600 leading-relaxed text-[15px]">{step.desc}</p>
-              
-              {i < 2 && (
-                <div className="hidden md:block absolute top-1/2 -right-6 -translate-y-1/2 z-10 text-gray-200">
-                  <ArrowRight className="h-6 w-6" />
+            <AnimatedSection key={i} delay={i * 0.1}>
+              <div className="relative h-full p-8 rounded-2xl bg-white border border-gray-100 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center mb-6">
+                  {step.icon}
                 </div>
-              )}
-            </motion.div>
+                <h3 className="text-[20px] font-bold text-gray-900 mb-3">{step.title}</h3>
+                <p className="text-gray-600 leading-relaxed text-[15px]">{step.desc}</p>
+                
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-6 -translate-y-1/2 z-10 text-gray-200">
+                    <ArrowRight className="h-6 w-6" />
+                  </div>
+                )}
+              </div>
+            </AnimatedSection>
           ))}
         </div>
       </div>

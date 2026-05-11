@@ -181,9 +181,9 @@ export function runAudit(
       if (freePlan) {
         setRecommendation(
           "downgrade",
-          `Downgrade to the Free plan — light usage by 1 user doesn't justify $${currentMonthlyCost}/mo`,
+          "Downgrade to Free",
           0,
-          `Single-user light usage is well within free tier limits for ${tool.toolName}. You are currently paying $${currentMonthlyCost}/mo for features that are likely available for free at your scale.`,
+          `Light usage by 1 user is well within free tier limits. Drop the $${currentMonthlyCost}/mo paid plan to save immediately.`,
           "high"
         );
       }
@@ -201,9 +201,9 @@ export function runAudit(
         const cost = altPlan.pricePerUserMonth * tool.seats;
         setRecommendation(
           "switch",
-          `Switch to ${alt} for writing workflows`,
+          `Switch to ${alt} for writing`,
           cost,
-          `${tool.toolName} is optimized for code autocomplete and IDE integration. For your writing-focused workflows, ${alt} offers superior long-form editing, nuanced tone control, and better context retention at $${altPlan.pricePerUserMonth}/user. This swap maintains utility while improving output quality.`,
+          `${tool.toolName} is built for code. ${alt} offers superior long-form editing and tone control for your writing-focused workflows at $${altPlan.pricePerUserMonth}/user.`,
           "high"
         );
       } else if ((tool.toolName === "Claude" || tool.toolName === "ChatGPT") && hasCoding && !hasWriting) {
@@ -212,9 +212,9 @@ export function runAudit(
         const cost = altPlan.pricePerUserMonth * tool.seats;
         setRecommendation(
           "switch",
-          `Switch to ${alt} for coding workflows`,
+          `Switch to ${alt} for coding`,
           cost,
-          `You are using ${tool.toolName} primarily for coding, but it lacks the deep IDE integration and codebase-wide context that a dedicated tool like ${alt} provides. Switching would give your team better autocomplete and refactoring tools for $${altPlan.pricePerUserMonth}/user.`,
+          `You're using ${tool.toolName} for code, but it lacks the deep IDE integration and codebase context of ${alt}. Switching improves dev speed for just $${altPlan.pricePerUserMonth}/user.`,
           "high"
         );
       }
@@ -225,17 +225,17 @@ export function runAudit(
       if (growthTrajectory === "scaling" || growthTrajectory === "hiring") {
         setRecommendation(
           "optimal",
-          `Keep ${tool.plan} — you're positioned for growth`,
+          "Optimal for Growth",
           currentMonthlyCost,
-          `You have ${tool.seats} seats on the ${tool.plan} plan which usually requires more users, but since you are ${growthTrajectory}, staying on this tier avoids a disruptive migration in 2-3 months. The administrative overhead of switching now outweighs the short-term savings.`,
+          `Your ${tool.plan} plan is appropriate given your ${growthTrajectory} trajectory. Staying here avoids a disruptive migration when you hire more users in 2-3 months.`,
           "medium"
         );
       } else if (tool.usageIntensity === "heavy") {
         setRecommendation(
           "optimal",
-          `Keep ${tool.plan} — high intensity justifies tier`,
+          "Optimal for Heavy Usage",
           currentMonthlyCost,
-          `Heavy-intensity users justify the ${tool.plan} tier even at a low seat count of ${tool.seats}. The advanced features like higher rate limits, SSO, and priority support provide a clear ROI for power users on your team.`,
+          `Heavy usage by ${tool.seats} users justifies the ${tool.plan} tier. Advanced rate limits and priority support provide a clear ROI for power users.`,
           "medium"
         );
       } else {
@@ -244,9 +244,9 @@ export function runAudit(
           const cost = proPlan.pricePerUserMonth * tool.seats;
           setRecommendation(
             "downgrade",
-            `Downgrade to ${proPlan.name} — ${tool.seats} seats don't need enterprise features`,
+            `Downgrade to ${proPlan.name}`,
             cost,
-            `You are paying for the ${tool.plan} tier for only ${tool.seats} users with ${tool.usageIntensity} usage. Switching to ${proPlan.name} at $${proPlan.pricePerUserMonth}/user saves $${(currentMonthlyCost - cost).toFixed(0)}/mo without losing core AI capabilities.`,
+            `${tool.seats} users don't need enterprise features. Switching to ${proPlan.name} at $${proPlan.pricePerUserMonth}/user saves $${(currentMonthlyCost - cost).toFixed(0)}/mo without losing core AI power.`,
             "high"
           );
         }
@@ -260,9 +260,9 @@ export function runAudit(
         const cost = teamPlan.pricePerUserMonth * tool.seats;
         setRecommendation(
           "downgrade",
-          "Downgrade to Business or Team plan",
+          `Downgrade to ${teamPlan.name}`,
           cost,
-          `Enterprise plans are built for 100+ seat organizations with complex SSO, compliance, and dedicated support needs. At your current scale of ${tool.seats} seats, a ${teamPlan.name} plan offers identical AI capabilities at a fraction of the cost, saving you $${(currentMonthlyCost - cost).toFixed(0)}/mo.`,
+          `Enterprise tiers are for 100+ seats with complex compliance needs. At your scale, ${teamPlan.name} offers identical AI capabilities for $${(currentMonthlyCost - cost).toFixed(0)}/mo less.`,
           "high"
         );
       }
@@ -282,13 +282,13 @@ export function runAudit(
         if (allWorkflowsCovered) {
           setRecommendation(
             "redundant",
-            `Drop ${tool.toolName} — ${replacementToolName} covers all the same workflows`,
+            `Drop ${tool.toolName}`,
             0,
-            `Both ${tool.toolName} and ${replacementToolName} provide ${tool.workflows.join(", ")} capabilities for your team. Running both is redundant. ${replacementToolName} covers all the same workflows and its specific strengths in ${TOOL_CAPABILITIES[replacementToolName].strengths.join(", ")} make it the stronger single choice for your stack. Dropping ${tool.toolName} eliminates the full $${currentMonthlyCost}/mo cost.`,
+            `${replacementToolName} covers all your ${tool.workflows.join(", ")} workflows. Dropping ${tool.toolName} eliminates redundancy and saves the full $${currentMonthlyCost}/mo.`,
             "high",
             [
-              `First migrate any CI/CD scripts or local tools using ${tool.toolName}'s CLI`,
-              `Ensure ${replacementToolName} supports all required team integrations`
+              `Migrate CI/CD or CLI usage to ${replacementToolName}`,
+              `Verify team integration support in ${replacementToolName}`
             ]
           );
         }
@@ -311,9 +311,9 @@ export function runAudit(
         const myWorkflowCost = calculateCostPerWorkflow(tool)[mostExpensiveOverlap.workflow];
         setRecommendation(
           "switch",
-          `Move ${mostExpensiveOverlap.workflow} workflows to ${cheaperToolName}`,
+          `Consolidate ${mostExpensiveOverlap.workflow} to ${cheaperToolName}`,
           currentMonthlyCost - myWorkflowCost,
-          `You're effectively spending $${myWorkflowCost.toFixed(0)}/mo on ${tool.toolName} specifically for ${mostExpensiveOverlap.workflow} tasks. ${cheaperToolName} already covers this workflow in your stack at a lower effective cost. Consolidating ${mostExpensiveOverlap.workflow} work into ${cheaperToolName} allows you to potentially downgrade ${tool.toolName} in the future.`,
+          `You're spending $${myWorkflowCost.toFixed(0)}/mo on ${tool.toolName} for ${mostExpensiveOverlap.workflow} tasks that ${cheaperToolName} already handles cheaper. Consolidating work saves immediately.`,
           "medium"
         );
       }
@@ -336,9 +336,9 @@ export function runAudit(
         const flatCost = teamPlan.pricePerUserMonth * teamSize;
         setRecommendation(
           "switch",
-          `Switch to ${vendorName} Team plan — API spend exceeds flat cost`,
+          `Switch to ${vendorName} Team`,
           flatCost,
-          `You have a steady API spend of $${currentMonthlyCost}/mo. A ${vendorName} Team plan at $${teamPlan.pricePerUserMonth}/seat × ${teamSize} users = $${flatCost}/mo provides predictable billing, higher rate limits, and administrative controls that your current pay-as-you-go model lacks.`,
+          `Your steady API spend ($${currentMonthlyCost}/mo) exceeds a flat Team plan cost. Switching provides predictable billing and higher limits for $${flatCost}/mo.`,
           "high"
         );
       } else {
@@ -360,9 +360,9 @@ export function runAudit(
         const cost = planData.pricePerUserMonth * suggestedSeats;
         setRecommendation(
           "downgrade",
-          `Reduce seats to ${suggestedSeats}`,
+          `Trim to ${suggestedSeats} Seats`,
           cost,
-          `You are paying for ${tool.seats} seats but only have ${teamSize} team members. Given your stable growth trajectory, you are over-provisioned by ${Math.round(((tool.seats/teamSize)-1)*100)}%. Trimming to ${suggestedSeats} seats (including a 10% buffer) saves $${(currentMonthlyCost - cost).toFixed(0)}/mo.`,
+          `You have ${tool.seats} seats for ${teamSize} members. Trimming to ${suggestedSeats} (includes buffer) saves $${(currentMonthlyCost - cost).toFixed(0)}/mo with zero impact on workflow.`,
           "high"
         );
       }
@@ -384,11 +384,10 @@ export function runAudit(
           const cost = teamTier.pricePerUserMonth * tool.seats;
           setRecommendation(
             "upgrade",
-            `Upgrade to ${teamTier.name} now`,
+            `Upgrade to ${teamTier.name}`,
             cost,
-            `You are on an individual/pro plan but scaling fast. Upgrading to the ${teamTier.name} tier now unlocks administrative controls, centralized billing, and volume pricing before you hit 15+ seats, avoiding a disruptive migration during a high-growth phase.`,
-            "medium",
-            [`Plan to migrate when you reach 8-10 active users to minimize disruption.`]
+            `You're scaling fast. Upgrading now unlocks admin controls and volume pricing before you hit 15+ seats, avoiding a messy migration during peak growth.`,
+            "medium"
           );
         }
       }
