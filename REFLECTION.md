@@ -35,12 +35,12 @@ The lesson: colocating computation with the client where possible is underrated 
 - Writing the Supabase SQL schema for the `audits` table
 - Debugging the `@vercel/og` edge function — the error messages from that library are opaque and Claude correctly identified that the `ImageResponse` constructor signature changed between versions
 
-**One time it was wrong**: When I asked Claude to help debug the Resend email not arriving, it suggested adding `text/plain` as an explicit content-type header to the `Resend.send()` call. This was confidently wrong — Resend's SDK doesn't need or accept that header, and adding it broke the API call with a 400 error. The actual problem was the unverified sender domain, which I found myself by reading Resend's own error response. Claude was pattern-matching on generic email API debugging advice, not Resend-specific behavior. Lesson: when an AI suggestion makes a previously-working API call throw a new error, the suggestion is wrong — check the official docs before applying it.
+**One time it was wrong**: When I asked Claude to help debug the Resend email not arriving, it suggested adding `text/plain` as an explicit content-type header to the `Resend.send()` call. This was confidently wrong — Resend's SDK doesn't need or accept that header, and adding it broke the API call with a 400 error. The actual problem was the unverified sender domain, which I found myself by reading Resend's own error response. Claude was pattern-matching on generic email API debugging advice, not Resend-specific behavior. Lesson: when an AI suggestion makes a previously-working API call throw a new error, the suggestion is wrong so I check the official docs before applying it.
 
 ---
 
 ## Q5: If this were a real product, what's the next thing you'd build?
-
+First of all i would add voice feature like person can simple open mic and tell about spending and tools and my speech to text and then run audit. And get proper audit. and also 
 A scheduled re-audit. Right now, SpendLens is a one-time snapshot. The real value would be continuous monitoring: "Your Cursor spend went up $200 this month. Three new seats were added. Should they be on the Team plan?" 
 
 This requires:

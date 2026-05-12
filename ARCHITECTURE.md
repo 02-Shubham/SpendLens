@@ -1,36 +1,40 @@
 # Architecture — SpendLens
 
 ## System Diagram
-
 ```mermaid
-graph LR
-    Browser["Browser\n(Next.js Client)"]
-    
-    subgraph Next["Next.js App (Vercel Edge)"]
-        Pages["Pages\n/start\n/audit/[id]"]
-        API_Audit["POST /api/audit\nRuns audit engine\nWrites to Supabase"]
-        API_Summary["POST /api/summary\nCalls Gemini API\nFallback template"]
-        API_Leads["POST /api/leads\nCaptures email\nSends via Resend"]
-        API_OG["GET /api/og\nGenerates OG image\n@vercel/og"]
+graph TD
+    Browser["Browser (Next.js Client)"]
+
+    subgraph NextJS["Next.js App - Vercel Edge"]
+        Pages["Pages (/start, /audit)"]
+        APIAudit["POST /api/audit"]
+        APISummary["POST /api/summary"]
+        APILeads["POST /api/leads"]
+        APIOG["GET /api/og"]
     end
 
-    AuditEngine["Audit Engine\nlib/audit-engine.ts\n(pure TypeScript, no I/O)"]
-    Gemini["Google Gemini API\nAI summary paragraph"]
-    Supabase["Supabase (Postgres)\nAudits table\nRow-level security"]
-    Resend["Resend\nTransactional email\nLead capture receipt"]
+    AuditEngine["Audit Engine (lib/audit-engine.ts)"]
+    Gemini["Google Gemini API"]
+    Supabase["Supabase (Postgres Database)"]
+    Resend["Resend API"]
 
-    Browser -->|"Form submit (tools, team, workflows)"| Pages
-    Pages -->|"runAudit() — runs in-browser"| AuditEngine
-    Pages -->|"POST audit data + results"| API_Audit
-    API_Audit -->|"INSERT audit row"| Supabase
-    Pages -->|"POST audit summary"| API_Summary
-    API_Summary -->|"generateContent()"| Gemini
-    Pages -->|"POST email + audit_id"| API_Leads
-    API_Leads -->|"UPDATE email on row"| Supabase
-    API_Leads -->|"send() report email"| Resend
-    Browser -->|"Share URL /audit/[id]"| Pages
-    Pages -->|"SELECT by id"| Supabase
-    API_OG -->|"Dynamic PNG"| Browser
+    Browser -->|Submit Form| Pages
+    Pages -->|runAudit| AuditEngine
+
+    Pages -->|Save Results| APIAudit
+    APIAudit -->|Insert Row| Supabase
+
+    Pages -->|Generate Summary| APISummary
+    APISummary -->|Call API| Gemini
+
+    Pages -->|Capture Email| APILeads
+    APILeads -->|Update Row| Supabase
+    APILeads -->|Send Report| Resend
+
+    Browser -->|Share URL| Pages
+    Pages -->|Fetch Data| Supabase
+
+    APIOG -->|Dynamic Image| Browser
 ```
 
 ---
