@@ -26,6 +26,7 @@ Rules:
 - Use plain English. Write like you're texting a smart friend, not writing a report.
 - NO words like: "leverage", "optimize", "implement", "streamline", "transition", "significant", "efficiency".
 - Use "$X/yr" not "$X annually". Use "switch to" not "migrate to".
+- IMPORTANT: If a recommendation advises consolidating specific tasks/workflows from a tool while leaving remaining spend active, phrase it as "Drop [workflow] from [Tool]" rather than instructing them to switch or ditch the tool entirely.
 - Be specific with tool names and dollar amounts.
 
 Audit data: ${JSON.stringify(auditSummary)}
