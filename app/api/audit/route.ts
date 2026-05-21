@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { runAudit } from "@/lib/audit-engine";
 import { supabaseAdmin } from "@/lib/supabase";
 import { UserTool, OrgType, GrowthTrajectory } from "@/types/audit";
+import { PRICING_DATA } from "@/lib/pricing-data";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -42,6 +43,22 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error("Supabase error:", error);
       return NextResponse.json({ error: "Failed to save audit" }, { status: 500 });
+    }
+
+    // Save snapshot for detection job
+    const { error: snapshotError } = await supabaseAdmin
+      .from("audit_snapshots")
+      .insert({
+        audit_id: data.id,
+        user_email: null, // Will be updated when lead is captured
+        tools_input: tools,
+        audit_result: auditSummary,
+        pricing_snapshot: PRICING_DATA,
+      });
+
+    if (snapshotError) {
+      console.error("Failed to save audit snapshot:", snapshotError);
+      // We don't fail the audit request if snapshot fails
     }
 
     return NextResponse.json({

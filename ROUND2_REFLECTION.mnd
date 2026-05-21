@@ -1,0 +1,13 @@
+# Round 2 Reflection
+
+## 1. What was the most uncomfortable trade-off you made because of the time pressure?
+
+The most uncomfortable trade-off was choosing manual pricing updates over live vendor pricing ingestion. A fully live version would scrape or fetch pricing pages, normalize plan names, detect vendor-side changes automatically, and store structured change events. That is closer to the spirit of “live audits,” but it is also fragile because the target vendors do not all expose stable public pricing APIs. I chose the prompt’s allowed path: pricing lives in `lib/pricing-data.ts`, and the operator updates it manually before triggering `/api/detect-changes`. That keeps the core product loop testable: old snapshot, changed pricing, stale audit, email, re-run, diff. The downside is operational trust. If nobody updates the file, the system never learns about market changes. In production, I would want a small admin workflow plus monitoring around stale pricing sources.
+
+## 2. If we extended the deadline by another 24 hours right now, what's the first thing you'd do?
+
+The first thing I would do is make re-audit links audit-specific instead of email-specific. Right now the email link identifies the user by email and token, and `/api/reaudit` loads that user’s latest stale audit. That is acceptable for a demo with one audit per user, but it is the wrong shape for a real product because a user can have multiple historical audits. I would change the link to include `audit_id`, validate that the signed token covers both the email and audit ID, and load exactly that snapshot. Then I would update the email content to list each affected audit with its own link. This single change would make the notification flow much more precise and would reduce confusion when a user has several teams, stacks, or saved scenarios.
+
+## 3. Looking back at your Round 1 codebase as a now-experienced user of it: what's one thing your Round 1 self made harder for your Round 2 self?
+
+Round 1 made sharing easy with `share_token`, but it did not treat the shareable audit URL and durable audit identity as the same concept. Round 2 specifically wants the stored audit ID to be the same one used in the public URL, and the existing code already had a separate UUID primary key plus a random share token. That separation is not inherently bad, but it makes re-audit links, reviewer testing, and database traceability less clean. A better Round 1 foundation would have explicitly modeled `audit_id` as the public stable identifier, then used optional private tokens only for actions that need authorization. Because that was not in place, Round 2 either has to preserve compatibility with existing share links or do a broader URL and data migration.

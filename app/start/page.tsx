@@ -120,8 +120,8 @@ export default function StartAuditPage() {
     <div className="min-h-screen bg-bg">
       <Navbar />
       
-      <main className="mx-auto max-w-[560px] px-6 pt-16 pb-32">
-        <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-8 shadow-sm">
+      <main className="mx-auto max-w-[560px] px-4 sm:px-6 pt-8 sm:pt-16 pb-32">
+        <div className="relative overflow-hidden rounded-xl border border-border bg-surface p-5 sm:p-8 shadow-sm">
           {/* Progress bar */}
           <div className="absolute top-0 left-0 h-[3px] w-full bg-border">
             <motion.div 
@@ -191,7 +191,7 @@ export default function StartAuditPage() {
                   <p className="text-[13px] uppercase tracking-wide text-text-tertiary">
                     Expected team growth
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {([
                       { value: "stable",  label: "Stable" },
                       { value: "hiring",  label: "Hiring soon" },
@@ -270,17 +270,17 @@ export default function StartAuditPage() {
                   <Plus className="h-4 w-4" /> Add a tool
                 </button>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                   <button
                     onClick={() => handleSetStep(1)}
-                    className="flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
+                    className="w-full sm:flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
                   >
                     ← Back
                   </button>
                   <button
                     onClick={() => handleSetStep(3)}
                     disabled={!canProceedToStep3}
-                  className="flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all"
+                    className="w-full sm:flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all"
                   >
                     Review audit <ArrowRight className="h-4 w-4" />
                   </button>
@@ -310,8 +310,8 @@ export default function StartAuditPage() {
                 </div>
 
                 {/* Summary Table */}
-                <div className="overflow-hidden rounded-md border border-border">
-                  <table className="w-full text-left text-[14px]">
+                <div className="overflow-x-auto rounded-md border border-border">
+                  <table className="w-full min-w-[500px] text-left text-[14px]">
                     <thead className="bg-surface-2 border-b border-border">
                       <tr>
                         <th className="px-3 py-3 font-medium text-text-secondary">Tool</th>
@@ -360,17 +360,17 @@ export default function StartAuditPage() {
                   </p>
                 )}
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                   <button
                     onClick={() => handleSetStep(2)}
-                    className="flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
+                    className="w-full sm:flex-1 h-12 text-[14px] font-medium text-text-secondary hover:text-text-primary transition-colors"
                   >
                     ← Edit
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all shadow-sm"
+                    className="w-full sm:flex-2 h-12 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 text-white font-medium rounded-md transition-all shadow-sm"
                   >
                     {submitting ? (
                       <>
