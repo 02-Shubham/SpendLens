@@ -93,6 +93,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Backfill the email in audit_snapshots
+    const { error: snapshotUpdateError } = await supabaseAdmin
+      .from("audit_snapshots")
+      .update({ user_email: email })
+      .eq("audit_id", audit.id);
+
+    if (snapshotUpdateError) {
+      console.error("Failed to backfill snapshot email:", snapshotUpdateError);
+      // We do not fail the lead capture if this fails
+    }
+
     // Send email via Resend
     if (!resend) {
       console.error("Resend API key missing in environment");
