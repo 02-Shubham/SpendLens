@@ -59,6 +59,7 @@ function ResultDiff({ oldResult, newResult }: { oldResult?: AuditResult, newResu
 function ReauditContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
+  const auditId = searchParams.get("auditId");
   const token = searchParams.get("token");
 
   const [loading, setLoading] = useState(true);
@@ -72,14 +73,14 @@ function ReauditContent() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!email || !token) {
-        setError("Missing email or token");
+      if (!email || !auditId || !token) {
+        setError("Missing email, audit ID, or token");
         setLoading(false);
         return;
       }
 
       try {
-        const res = await fetch(`/api/reaudit?email=${encodeURIComponent(email as string)}&token=${token}`);
+        const res = await fetch(`/api/reaudit?email=${encodeURIComponent(email)}&auditId=${auditId}&token=${token}`);
         const json = await res.json();
         
         if (!res.ok) {
@@ -95,7 +96,7 @@ function ReauditContent() {
     }
 
     fetchData();
-  }, [email, token]);
+  }, [email, auditId, token]);
 
   if (loading) {
     return (

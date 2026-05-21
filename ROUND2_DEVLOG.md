@@ -45,3 +45,11 @@ Reviewed the repo before preparing a PR. Found the Round 2 work was uncommitted,
 ## 2026-05-21 23:20 - Blocker cleanup
 
 Fixed the TypeScript blockers in the pricing comparison and re-audit page state handling. Rewrote the PR notes into the required structure and expanded this devlog into timestamped entries.
+
+## 2026-05-21 23:45 - Bonus scope pass
+
+Added a testable pricing-change detection helper so route logic does not own all of the comparison behavior. This made it easier to cover price changes, added plans, removed plans, stack filtering, and recommendation diffs with Vitest.
+
+## 2026-05-21 23:58 - Unsubscribe and pricing history
+
+Added one-click unsubscribe storage with `email_preferences`, audit-specific re-audit links, `pricing_changes` inserts, and a public `/pricing-changes` page. Kept batching simple with a `limit` query parameter on `/api/detect-changes` instead of adding a queue service.

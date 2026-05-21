@@ -8,13 +8,14 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get("email");
+    const auditId = searchParams.get("auditId");
     const token = searchParams.get("token");
 
-    if (!email || !token) {
-      return NextResponse.json({ error: "Missing email or token" }, { status: 400 });
+    if (!email || !auditId || !token) {
+      return NextResponse.json({ error: "Missing email, auditId, or token" }, { status: 400 });
     }
 
-    const expectedToken = generateReauditToken(email);
+    const expectedToken = generateReauditToken(email, auditId);
     if (token !== expectedToken) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
@@ -23,14 +24,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
     }
 
-    // Fetch the most recent stale snapshot for the user
+    // Fetch the specific stale snapshot referenced by the email link
     const { data: snapshot, error: fetchError } = await supabaseAdmin
       .from("audit_snapshots")
       .select("*")
+      .eq("audit_id", auditId)
       .eq("user_email", email)
       .eq("is_stale", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
       .single();
 
     if (fetchError || !snapshot) {
